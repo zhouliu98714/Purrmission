@@ -489,6 +489,15 @@ function money(value, currency = selectedCurrency()) {
   }).format(value);
 }
 
+function numberText(value, maximumFractionDigits = 3) {
+  const numericValue = Number(value);
+  if (!Number.isFinite(numericValue)) return "0";
+
+  return new Intl.NumberFormat("en-US", {
+    maximumFractionDigits,
+  }).format(numericValue);
+}
+
 function updateCurrencyUI() {
   const currency = selectedCurrency();
   localStorage.setItem(CURRENCY_KEY, currency);
@@ -841,7 +850,7 @@ function renderHistory() {
     name.textContent = entry.item;
     summary.append(name, `${entry.verdict} · ${money(entry.price, entry.currency || selectedCurrency())} · ${feedback}`);
     badge.className = "history-badge";
-    badge.textContent = entry.score;
+    badge.textContent = numberText(entry.score);
     item.append(summary, badge);
     historyList.append(item);
   });
@@ -933,9 +942,9 @@ function calculateDecision({ remember = true, sound = true } = {}) {
     hasNamedItem: Boolean(itemName),
   };
 
-  budgetBite.textContent = hasBudget ? `${Math.round(budgetRatio * 100)}%` : "Not set";
+  budgetBite.textContent = hasBudget ? `${numberText(budgetRatio * 100)}%` : "Not set";
   costUse.textContent = `${money(perUse, currency)} / use`;
-  catScore.textContent = normalizedScore;
+  catScore.textContent = numberText(normalizedScore);
   renderContextCard(priceContext);
 
   let result;
@@ -1013,9 +1022,9 @@ function calculateNegotiation(event) {
   const adjustedPerUse = promisedUses > 0 ? targetPrice / promisedUses : targetPrice;
   const promisedUsage = usageLabel(promisedUses, usePeriod);
 
-  budgetBite.textContent = hasBudget ? `${Math.round(adjustedBudgetRatio * 100)}%` : "Not set";
+  budgetBite.textContent = hasBudget ? `${numberText(adjustedBudgetRatio * 100)}%` : "Not set";
   costUse.textContent = `${money(adjustedPerUse, currentDecision.currency)} / use`;
-  catScore.textContent = adjustedScore;
+  catScore.textContent = numberText(adjustedScore);
 
   if (adjustedScore >= 72 && (!hasBudget || adjustedBudgetRatio <= 1)) {
     verdict.textContent = "Conditional purrmission";
