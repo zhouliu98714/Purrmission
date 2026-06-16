@@ -16,6 +16,7 @@ const contextChecks = document.querySelector("#context-checks");
 const rebelButton = document.querySelector("#rebel-button");
 const scratchAttack = document.querySelector("#scratch-attack");
 const negotiation = document.querySelector("#negotiation");
+const detailFields = document.querySelector("#detail-fields");
 const catPersona = document.querySelector("#cat-persona");
 const personaNote = document.querySelector("#persona-note");
 const historyList = document.querySelector("#history-list");
@@ -306,6 +307,22 @@ const rebelReasons = [
   "You went around the cat. The cat has not gone around the evidence.",
 ];
 
+const assumptionNotes = {
+  quick: [
+    "Quick judgment: the cat used default assumptions for budget, usage, and duplicates.",
+    "This is a quick read. Add more context if you want the cat to be less dramatic and more precise.",
+    "The cat used its default assumptions here. Expand the details for a sharper verdict.",
+    "Fast mode active: useful, but not as nosy as the full inspection.",
+    "Quick purrmission math used defaults for the hidden details.",
+  ],
+  detailed: [
+    "Sharper judgment: the cat used your extra context.",
+    "Extra context received. The cat appreciates the paperwork.",
+    "Detailed mode: more facts, fewer mysterious assumptions.",
+    "The cat used the expanded details for this verdict.",
+  ],
+};
+
 function decisionReason(type, context) {
   const { item, price, currency } = context;
   const sentenceItem = item === "this" ? "This" : item;
@@ -379,6 +396,12 @@ function negotiationReason(type, context) {
   };
 
   return randomLine(`negotiation-${type}`, lines[type]);
+}
+
+function assumptionNote() {
+  return detailFields.open
+    ? randomLine("assumption-detailed", assumptionNotes.detailed)
+    : randomLine("assumption-quick", assumptionNotes.quick);
 }
 
 const usageRealityChecks = {
@@ -944,6 +967,8 @@ function calculateDecision({ remember = true, sound = true } = {}) {
   if (usageNote) {
     message += ` ${usageNote}`;
   }
+
+  message += ` ${assumptionNote()}`;
 
   verdict.textContent = result;
   reason.textContent = message;

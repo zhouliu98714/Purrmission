@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Purrmission</title>
-    <link rel="stylesheet" href="styles.css?v=14" />
+    <link rel="stylesheet" href="styles.css?v=15" />
   </head>
   <body>
     <main class="shell" aria-label="Purrmission purchase advisor">
@@ -75,68 +75,76 @@
             </select>
           </label>
 
-          <div class="field-grid">
-            <label class="field money-field">
-              <span>Price</span>
-              <span class="input-prefix">
-                <span class="currency-prefix" data-currency-prefix aria-hidden="true">$</span>
-                <input id="price" name="price" type="number" min="0" step="1" inputmode="decimal" value="120" />
-              </span>
-            </label>
-            <label class="field money-field">
-              <span>Budget</span>
-              <span class="input-prefix">
-                <span class="currency-prefix" data-currency-prefix aria-hidden="true">$</span>
-                <input id="budget" name="budget" type="number" min="0" step="1" inputmode="decimal" placeholder="Optional" />
-              </span>
-            </label>
-          </div>
-
-          <div class="field-grid">
-            <label class="field">
-              <span>Uses</span>
-              <input id="uses" name="uses" type="number" min="0" step="1" inputmode="numeric" value="8" />
-            </label>
-            <label class="field">
-              <span>Every</span>
-              <select id="use-frequency" name="use-frequency">
-                <option value="day">Day</option>
-                <option value="month" selected>Month</option>
-                <option value="year">Year</option>
-              </select>
-            </label>
-          </div>
-
-          <div class="field-grid">
-            <label class="field">
-              <span>Keep for</span>
-              <input id="keep-for" name="keep-for" type="number" min="1" step="1" inputmode="numeric" value="1" />
-            </label>
-            <label class="field">
-              <span>Period</span>
-              <select id="keep-period" name="keep-period">
-                <option value="month">Month</option>
-                <option value="year" selected>Year</option>
-              </select>
-            </label>
-          </div>
-
-          <div class="field-grid">
-            <label class="field">
-              <span>Already own something similar?</span>
-              <select id="duplicate" name="duplicate">
-                <option value="0">No</option>
-                <option value="1">Kind of</option>
-                <option value="2">Yes</option>
-              </select>
-            </label>
-          </div>
+          <label class="field money-field">
+            <span>Price</span>
+            <span class="input-prefix">
+              <span class="currency-prefix" data-currency-prefix aria-hidden="true">$</span>
+              <input id="price" name="price" type="number" min="0" step="1" inputmode="decimal" value="120" />
+            </span>
+          </label>
 
           <label class="range-field">
             <span>Impulse level</span>
             <strong id="impulse-label">Medium</strong>
             <input id="impulse" name="impulse" type="range" min="1" max="5" value="3" />
           </label>
+
+          <details class="detail-fields" id="detail-fields">
+            <summary>
+              <span>Add more context for a sharper judgment</span>
+              <small>Uses defaults if closed</small>
+            </summary>
+
+            <div class="detail-content">
+              <label class="field money-field">
+                <span>Budget</span>
+                <span class="input-prefix">
+                  <span class="currency-prefix" data-currency-prefix aria-hidden="true">$</span>
+                  <input id="budget" name="budget" type="number" min="0" step="1" inputmode="decimal" placeholder="Optional" />
+                </span>
+              </label>
+
+              <div class="field-grid">
+                <label class="field">
+                  <span>Uses</span>
+                  <input id="uses" name="uses" type="number" min="0" step="1" inputmode="numeric" value="8" />
+                </label>
+                <label class="field">
+                  <span>Every</span>
+                  <select id="use-frequency" name="use-frequency">
+                    <option value="day">Day</option>
+                    <option value="month" selected>Month</option>
+                    <option value="year">Year</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="field-grid">
+                <label class="field">
+                  <span>Keep for</span>
+                  <input id="keep-for" name="keep-for" type="number" min="1" step="1" inputmode="numeric" value="1" />
+                </label>
+                <label class="field">
+                  <span>Period</span>
+                  <select id="keep-period" name="keep-period">
+                    <option value="month">Month</option>
+                    <option value="year" selected>Year</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="field-grid">
+                <label class="field">
+                  <span>Already own something similar?</span>
+                  <select id="duplicate" name="duplicate">
+                    <option value="0">No</option>
+                    <option value="1">Kind of</option>
+                    <option value="2">Yes</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+          </details>
 
           <button class="judge-button" type="submit">Ask for Purrmission</button>
         </form>
@@ -260,6 +268,6 @@
       <span class="scratch scratch-three"></span>
       <p>NOPE</p>
     </div>
-    <script src="app.js?v=24"></script>
+    <script src="app.js?v=25"></script>
   </body>
 </html>
