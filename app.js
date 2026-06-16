@@ -53,6 +53,64 @@ const currencySymbols = {
   CNY: "¥",
 };
 
+const usdPerCurrency = {
+  USD: 1,
+  EUR: 1.08,
+  GBP: 1.27,
+  CAD: 0.73,
+  AUD: 0.66,
+  JPY: 0.0064,
+  CNY: 0.14,
+};
+
+const priceBenchmarks = [
+  {
+    label: "a house",
+    keywords: ["house", "home", "condo", "apartment", "flat", "townhouse"],
+    typicalUsd: 300000,
+  },
+  {
+    label: "a car",
+    keywords: ["car", "vehicle", "truck", "suv", "tesla", "honda", "toyota", "bmw"],
+    typicalUsd: 25000,
+  },
+  {
+    label: "a laptop",
+    keywords: ["laptop", "macbook", "computer", "pc"],
+    typicalUsd: 1200,
+  },
+  {
+    label: "a phone",
+    keywords: ["phone", "iphone", "android", "pixel", "samsung"],
+    typicalUsd: 900,
+  },
+  {
+    label: "headphones",
+    keywords: ["headphone", "headphones", "airpods", "earbuds"],
+    typicalUsd: 180,
+  },
+  {
+    label: "a handbag",
+    keywords: ["bag", "handbag", "purse", "tote", "wallet"],
+    typicalUsd: 350,
+  },
+  {
+    label: "shoes",
+    keywords: ["shoe", "shoes", "sneakers", "boots", "heels"],
+    typicalUsd: 130,
+  },
+  {
+    label: "furniture",
+    keywords: ["sofa", "couch", "desk", "chair", "table", "bed", "mattress"],
+    typicalUsd: 600,
+  },
+  {
+    label: "coffee",
+    keywords: ["coffee", "latte", "matcha", "boba", "tea"],
+    typicalUsd: 6,
+  },
+];
+
 const impulseNames = {
   1: "Calm",
   2: "Curious",
@@ -67,6 +125,10 @@ function selectedCurrency() {
 
 function currencySymbol(currency = selectedCurrency()) {
   return currencySymbols[currency] || currency;
+}
+
+function priceInUsd(price, currency = selectedCurrency()) {
+  return price * (usdPerCurrency[currency] || 1);
 }
 
 function money(value, currency = selectedCurrency()) {
@@ -84,6 +146,55 @@ function updateCurrencyUI() {
   currencyPrefixes.forEach((prefix) => {
     prefix.textContent = currencySymbol(currency);
   });
+}
+
+function productPriceContext(item, price, currency) {
+  const normalizedItem = item.toLowerCase();
+  const benchmark = priceBenchmarks.find((entry) =>
+    entry.keywords.some((keyword) => normalizedItem.includes(keyword)),
+  );
+
+  if (!benchmark || price <= 0) {
+    return {
+      scoreShift: 0,
+      message: "",
+    };
+  }
+
+  const ratio = priceInUsd(price, currency) / benchmark.typicalUsd;
+
+  if (ratio <= 0.02) {
+    return {
+      scoreShift: 34,
+      message: ` For ${benchmark.label}, ${money(price, currency)} is wildly below a normal price. The cat is impressed, but wants you to check condition, scams, and hidden costs.`,
+    };
+  }
+
+  if (ratio <= 0.35) {
+    return {
+      scoreShift: 18,
+      message: ` For ${benchmark.label}, ${money(price, currency)} looks cheap enough that price is helping your case.`,
+    };
+  }
+
+  if (ratio >= 2.5) {
+    return {
+      scoreShift: -18,
+      message: ` For ${benchmark.label}, ${money(price, currency)} looks high, so the cat wants stronger proof before approving.`,
+    };
+  }
+
+  if (ratio >= 1.4) {
+    return {
+      scoreShift: -8,
+      message: ` For ${benchmark.label}, ${money(price, currency)} is on the expensive side.`,
+    };
+  }
+
+  return {
+    scoreShift: 0,
+    message: "",
+  };
 }
 
 function ensureAudio() {
@@ -476,7 +587,8 @@ function calculateDecision({ remember = true, sound = true } = {}) {
   const budgetPenalty = hasBudget ? Math.min(42, budgetRatio * 48) : 0;
   const impulsePenalty = impulseValue * 7;
   const duplicatePenalty = duplicate * 15;
-  const score = Math.round(68 + useScore - budgetPenalty - impulsePenalty - duplicatePenalty);
+  const priceContext = productPriceContext(item, price, currency);
+  const score = Math.round(68 + useScore + priceContext.scoreShift - budgetPenalty - impulsePenalty - duplicatePenalty);
   const normalizedScore = Math.max(0, Math.min(100, score));
   const perUse = expectedUses > 0 ? price / expectedUses : price;
 
@@ -515,6 +627,10 @@ function calculateDecision({ remember = true, sound = true } = {}) {
 
   if (duplicate > 0 && normalizedScore < 78) {
     message += " You already have a similar thing, which makes the cat squint.";
+  }
+
+  if (priceContext.message) {
+    message += priceContext.message;
   }
 
   verdict.textContent = result;
