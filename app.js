@@ -69,15 +69,15 @@ function ensureAudio() {
 
 function createPurrWavBuffer({ mood = "soft" } = {}) {
   const sampleRate = 16000;
-  const duration = 0.45 + Math.random() * 0.45;
+  const duration = 0.75 + Math.random() * 0.45;
   const sampleCount = Math.floor(sampleRate * duration);
   const bytesPerSample = 2;
   const dataSize = sampleCount * bytesPerSample;
   const buffer = new ArrayBuffer(44 + dataSize);
   const view = new DataView(buffer);
-  const base = mood === "grumpy" ? 92 + Math.random() * 18 : 74 + Math.random() * 22;
-  const wobble = 8 + Math.random() * 9;
-  const volume = mood === "grumpy" ? 0.2 : 0.16;
+  const base = mood === "grumpy" ? 128 + Math.random() * 26 : 148 + Math.random() * 34;
+  const wobble = 6 + Math.random() * 8;
+  const volume = mood === "grumpy" ? 0.28 : 0.24;
 
   function writeString(offset, value) {
     for (let i = 0; i < value.length; i += 1) {
@@ -104,10 +104,11 @@ function createPurrWavBuffer({ mood = "soft" } = {}) {
     const envelope = Math.sin(Math.PI * (index / sampleCount));
     const pulse = 0.55 + 0.45 * Math.sin(2 * Math.PI * wobble * time);
     const wave =
-      Math.sin(2 * Math.PI * base * time) * 0.54 +
-      Math.sin(2 * Math.PI * base * 1.92 * time) * 0.26 +
-      Math.sin(2 * Math.PI * base * 2.7 * time) * 0.14 +
-      (Math.random() * 2 - 1) * 0.03;
+      Math.sin(2 * Math.PI * base * time) * 0.42 +
+      Math.sin(2 * Math.PI * base * 1.5 * time) * 0.18 +
+      Math.sin(2 * Math.PI * base * 2.2 * time) * 0.2 +
+      Math.sin(2 * Math.PI * base * 3.1 * time) * 0.1 +
+      (Math.random() * 2 - 1) * 0.025;
     const sample = Math.max(-1, Math.min(1, wave * pulse * envelope * volume));
     view.setInt16(44 + index * 2, sample * 32767, true);
   }
@@ -122,7 +123,7 @@ function playGeneratedPurr(options) {
     const audio = document.createElement("audio");
     const blobUrl = URL.createObjectURL(new Blob([createPurrWavBuffer(options)], { type: "audio/wav" }));
     audio.src = blobUrl;
-    audio.volume = 0.72;
+    audio.volume = 0.9;
     audio.addEventListener("ended", () => URL.revokeObjectURL(blobUrl), { once: true });
     audio.play().catch(() => URL.revokeObjectURL(blobUrl));
     return true;
