@@ -847,6 +847,10 @@ input[type="range"] {
 
 .rebel-button {
   margin-top: 0.8rem;
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 253, 250, 0.64);
+  box-shadow: none;
 }
 
 .listen-button {
@@ -855,14 +859,26 @@ input[type="range"] {
 }
 
 .negotiate-button {
-  background: rgba(147, 217, 193, 0.22);
+  border-color: rgba(152, 197, 255, 0.34);
+  background: rgba(152, 197, 255, 0.18);
+  color: rgba(255, 253, 250, 0.9);
 }
 
 .negotiate-button:hover,
-.listen-button:hover,
-.rebel-button:hover {
+.listen-button:hover {
   background: rgba(255, 127, 153, 0.34);
   transform: translateY(-0.06rem);
+}
+
+.negotiate-button:hover {
+  background: rgba(152, 197, 255, 0.28);
+}
+
+.rebel-button:hover {
+  border-color: rgba(255, 127, 153, 0.28);
+  background: rgba(255, 127, 153, 0.12);
+  color: rgba(255, 253, 250, 0.86);
+  transform: translateY(-0.03rem);
 }
 
 .scratch-attack,
