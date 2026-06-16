@@ -404,6 +404,31 @@ function assumptionNote() {
     : randomLine("assumption-quick", assumptionNotes.quick);
 }
 
+function dealScoreBonus(isDealPrice, priceContext) {
+  if (!isDealPrice || priceContext.needsInspection) return 0;
+  if (priceContext.priceLevel === "Very high") return 2;
+  if (priceContext.priceLevel === "High") return 4;
+  return 6;
+}
+
+function dealNote(priceContext) {
+  const lines = priceContext.needsInspection
+    ? [
+        "The sale tag is noted, but the cat refuses to let a discount outrank serious verification.",
+        "Deal energy received. The cat still wants proof before treating this as good news.",
+        "A discount can be real and still risky. The cat is keeping both paws on the evidence folder.",
+      ]
+    : [
+        "The deal tag helps a little because you are not chasing full price, but the cat still checks the whole case.",
+        "Sale noted. The cat grants a tiny paw bump for patience, not a full pardon.",
+        "The cat appreciates discount discipline, while remaining suspicious of shiny markdowns.",
+        "A better price helps the argument, but it does not erase budget, use, or duplicate concerns.",
+        "Deal acknowledged. The cat is pleased you looked for value and still wants receipts.",
+      ];
+
+  return randomLine("deal-note", lines);
+}
+
 const usageRealityChecks = {
   day: [
     "Also, more than 24 uses per day is ambitious. The cat would like to inspect your calendar.",
@@ -913,6 +938,7 @@ function calculateDecision({ remember = true, sound = true } = {}) {
   const duplicate = Number(document.querySelector("#duplicate").value);
   const impulseValue = Number(impulse.value);
   const currency = selectedCurrency();
+  const isDealPrice = document.querySelector("#deal-price").checked;
 
   const hasBudget = budget > 0;
   const budgetRatio = hasBudget ? price / budget : 0;
@@ -924,7 +950,10 @@ function calculateDecision({ remember = true, sound = true } = {}) {
   const duplicatePenalty = duplicate * 15;
   const priceContext = productPriceContext(item, price, currency);
   const usageNote = usageRealityNote(uses, useFrequency);
-  const score = Math.round(68 + useScore + priceContext.scoreShift - budgetPenalty - impulsePenalty - duplicatePenalty);
+  const dealBonus = dealScoreBonus(isDealPrice, priceContext);
+  const score = Math.round(
+    68 + useScore + priceContext.scoreShift + dealBonus - budgetPenalty - impulsePenalty - duplicatePenalty,
+  );
   const normalizedScore = Math.max(0, Math.min(100, score));
   const perUse = expectedUses > 0 ? price / expectedUses : price;
 
@@ -937,6 +966,7 @@ function calculateDecision({ remember = true, sound = true } = {}) {
     budgetRatio,
     verdict: "",
     currency,
+    isDealPrice,
     feedback: [],
     id: null,
     hasNamedItem: Boolean(itemName),
@@ -971,6 +1001,10 @@ function calculateDecision({ remember = true, sound = true } = {}) {
 
   if (priceContext.message) {
     message += priceContext.message;
+  }
+
+  if (isDealPrice) {
+    message += ` ${dealNote(priceContext)}`;
   }
 
   if (usageNote) {

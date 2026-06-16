@@ -453,13 +453,50 @@ body {
 }
 
 .field,
-.range-field {
+.range-field,
+.check-field {
   display: grid;
   gap: 0.45rem;
   min-width: 0;
   color: var(--muted);
   font-size: 0.86rem;
   font-weight: 750;
+}
+
+.check-field {
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: 3.15rem;
+  padding: 0.68rem 0.8rem;
+  border: 2px solid rgba(48, 40, 58, 0.08);
+  border-radius: 0.95rem;
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 0.18rem 0 var(--panel-dark);
+}
+
+.check-field input {
+  width: 1.15rem;
+  min-height: 1.15rem;
+  accent-color: var(--paw);
+  box-shadow: none;
+}
+
+.check-field span {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.check-field strong {
+  color: var(--ink);
+  font-size: 0.9rem;
+}
+
+.check-field small {
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  line-height: 1.25;
 }
 
 .range-field {
