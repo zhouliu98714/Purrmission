@@ -306,6 +306,24 @@ const rebelReasons = [
   "You went around the cat. The cat has not gone around the evidence.",
 ];
 
+const usageRealityChecks = {
+  day: [
+    "Also, more than 24 uses per day is ambitious. The cat would like to inspect your calendar.",
+    "The cat noticed that a day only has 24 hours. This usage plan is wearing a tiny fake mustache.",
+    "More than 24 times per day? The cat is not judging the score, just the physics.",
+  ],
+  month: [
+    "Also, more uses than days in a month is possible, but the cat is raising one eyebrow.",
+    "The cat counted the days in a month and found fewer than your usage estimate.",
+    "This monthly use count is higher than the calendar. The cat will allow the math but not the drama.",
+  ],
+  year: [
+    "Also, more uses than days in a year is possible, but the cat is requesting a lifestyle diagram.",
+    "The cat checked the calendar. This yearly use count is doing a lot.",
+    "More than 366 times per year? The cat is not changing the verdict, only staring at the schedule.",
+  ],
+};
+
 const lastLineByType = {};
 
 function catMood(type) {
@@ -588,6 +606,17 @@ function usageLabel(uses, period) {
   return `${uses} time${uses === 1 ? "" : "s"} per ${period}`;
 }
 
+function usageRealityNote(uses, period) {
+  const limits = {
+    day: 24,
+    month: 31,
+    year: 366,
+  };
+
+  if (uses <= (limits[period] || Infinity)) return "";
+  return randomLine(`usageReality-${period}`, usageRealityChecks[period]);
+}
+
 function monthsFromDuration(value, period) {
   const amount = Math.max(1, value);
   return period === "year" ? amount * 12 : amount;
@@ -759,6 +788,7 @@ function calculateDecision({ remember = true, sound = true } = {}) {
   const impulsePenalty = impulseValue * 7;
   const duplicatePenalty = duplicate * 15;
   const priceContext = productPriceContext(item, price, currency);
+  const usageNote = usageRealityNote(uses, useFrequency);
   const score = Math.round(68 + useScore + priceContext.scoreShift - budgetPenalty - impulsePenalty - duplicatePenalty);
   const normalizedScore = Math.max(0, Math.min(100, score));
   const perUse = expectedUses > 0 ? price / expectedUses : price;
@@ -806,6 +836,10 @@ function calculateDecision({ remember = true, sound = true } = {}) {
 
   if (priceContext.message) {
     message += priceContext.message;
+  }
+
+  if (usageNote) {
+    message += ` ${usageNote}`;
   }
 
   verdict.textContent = result;
