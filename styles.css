@@ -824,6 +824,7 @@ input[type="range"] {
 }
 
 .negotiate-button,
+.listen-button,
 .rebel-button {
   width: 100%;
   min-height: 3rem;
@@ -842,17 +843,24 @@ input[type="range"] {
   margin-top: 0.8rem;
 }
 
+.listen-button {
+  margin-top: 0.8rem;
+  background: rgba(147, 217, 193, 0.26);
+}
+
 .negotiate-button {
   background: rgba(147, 217, 193, 0.22);
 }
 
 .negotiate-button:hover,
+.listen-button:hover,
 .rebel-button:hover {
   background: rgba(255, 127, 153, 0.34);
   transform: translateY(-0.06rem);
 }
 
-.scratch-attack {
+.scratch-attack,
+.happy-run {
   position: fixed;
   inset: 0;
   z-index: 10;
@@ -863,8 +871,16 @@ input[type="range"] {
   background: rgba(47, 41, 56, 0);
 }
 
+.happy-run {
+  background: rgba(255, 249, 239, 0);
+}
+
 .scratch-attack.is-active {
   animation: attack-backdrop 1150ms ease both;
+}
+
+.happy-run.is-active {
+  animation: happy-backdrop 1600ms ease both;
 }
 
 .attack-cat {
@@ -999,6 +1015,199 @@ input[type="range"] {
   transform: translateX(-50%) translateY(1rem) rotate(-4deg);
 }
 
+.happy-track {
+  position: relative;
+  width: min(86vw, 26rem);
+  aspect-ratio: 1;
+  opacity: 0;
+  transform: scale(0.88);
+}
+
+.happy-run.is-active .happy-track {
+  animation: happy-track-pop 1550ms ease both;
+}
+
+.happy-cat,
+.happy-tail,
+.happy-ear,
+.happy-face,
+.happy-eye,
+.happy-nose,
+.happy-mouth,
+.happy-paw,
+.happy-spark {
+  position: absolute;
+  display: block;
+}
+
+.happy-cat {
+  top: 50%;
+  left: 50%;
+  width: 8.8rem;
+  aspect-ratio: 1 / 0.78;
+  transform: translate(-50%, -50%) rotate(0deg) translateX(8rem) rotate(0deg);
+}
+
+.happy-run.is-active .happy-cat {
+  animation: happy-cat-orbit 1380ms cubic-bezier(0.18, 0.84, 0.22, 1) both;
+}
+
+.happy-face {
+  inset: 14% 8% 4%;
+  border-radius: 52% 52% 42% 42%;
+  background: var(--gold);
+  box-shadow: inset -0.45rem -0.38rem rgba(143, 84, 45, 0.12), 0 1rem 2rem rgba(47, 41, 56, 0.18);
+}
+
+.happy-tail {
+  right: -1.1rem;
+  top: 27%;
+  width: 3.8rem;
+  height: 1.2rem;
+  border: 0.38rem solid var(--gold);
+  border-left: 0;
+  border-bottom: 0;
+  border-radius: 0 99rem 0 0;
+  transform: rotate(8deg);
+  transform-origin: left center;
+}
+
+.happy-run.is-active .happy-tail {
+  animation: happy-tail-wag 360ms ease-in-out 4;
+}
+
+.happy-ear {
+  top: 0.15rem;
+  width: 2.45rem;
+  height: 2.45rem;
+  border-radius: 0.45rem 100% 0.45rem 100%;
+  background: var(--gold);
+}
+
+.happy-ear-left {
+  left: 1.35rem;
+  transform: rotate(-14deg);
+}
+
+.happy-ear-right {
+  right: 1.35rem;
+  transform: rotate(104deg);
+}
+
+.happy-eye {
+  top: 43%;
+  width: 1rem;
+  height: 0.18rem;
+  border-radius: 99rem;
+  background: var(--ink);
+}
+
+.happy-eye-left {
+  left: 30%;
+}
+
+.happy-eye-right {
+  right: 30%;
+}
+
+.happy-nose {
+  top: 55%;
+  left: 50%;
+  width: 0.72rem;
+  height: 0.48rem;
+  border-radius: 55% 55% 90% 90%;
+  transform: translateX(-50%);
+  background: var(--paw-dark);
+}
+
+.happy-mouth {
+  top: 65%;
+  left: 50%;
+  width: 1.55rem;
+  height: 0.72rem;
+  border-bottom: 0.22rem solid var(--ink);
+  border-radius: 0 0 99rem 99rem;
+  transform: translateX(-50%);
+}
+
+.happy-paw {
+  bottom: 0.2rem;
+  width: 1.2rem;
+  height: 0.55rem;
+  border-radius: 99rem;
+  background: var(--gold-dark);
+}
+
+.happy-paw-one {
+  left: 27%;
+}
+
+.happy-paw-two {
+  right: 27%;
+}
+
+.happy-run.is-active .happy-paw-one {
+  animation: happy-paw-step 260ms ease-in-out 5;
+}
+
+.happy-run.is-active .happy-paw-two {
+  animation: happy-paw-step 260ms ease-in-out 130ms 5;
+}
+
+.happy-spark {
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 50%;
+  background: var(--paw);
+  opacity: 0;
+  box-shadow: 0 0 0 0.28rem rgba(255, 127, 153, 0.16);
+}
+
+.happy-spark-one {
+  top: 18%;
+  left: 20%;
+}
+
+.happy-spark-two {
+  top: 26%;
+  right: 18%;
+  background: var(--mint);
+}
+
+.happy-spark-three {
+  left: 48%;
+  bottom: 14%;
+  background: var(--gold);
+}
+
+.happy-run.is-active .happy-spark {
+  animation: happy-spark-pop 980ms ease both;
+}
+
+.happy-run.is-active .happy-spark-two {
+  animation-delay: 180ms;
+}
+
+.happy-run.is-active .happy-spark-three {
+  animation-delay: 360ms;
+}
+
+.happy-run p {
+  position: fixed;
+  left: 50%;
+  bottom: 8vh;
+  width: min(92vw, 42rem);
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(2rem, 11vw, 5.5rem);
+  font-weight: 950;
+  letter-spacing: 0;
+  text-align: center;
+  text-shadow: 0 0.45rem 0 rgba(255, 255, 255, 0.68);
+  opacity: 0;
+  transform: translateX(-50%) translateY(1rem) rotate(2deg);
+}
+
 .feedback-panel,
 .history-panel {
   margin-top: 1rem;
@@ -1098,6 +1307,10 @@ input[type="range"] {
 
 .scratch-attack.is-active p {
   animation: nope-pop 700ms ease 380ms both;
+}
+
+.happy-run.is-active p {
+  animation: good-human-pop 900ms ease 420ms both;
 }
 
 .calculator.happy .cat-mark {
@@ -1375,6 +1588,83 @@ input[type="range"] {
   }
 }
 
+@keyframes happy-backdrop {
+  0%,
+  100% {
+    opacity: 0;
+    background: rgba(255, 249, 239, 0);
+  }
+  16%,
+  86% {
+    opacity: 1;
+    background: rgba(255, 249, 239, 0.78);
+  }
+}
+
+@keyframes happy-track-pop {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+  18%,
+  86% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes happy-cat-orbit {
+  0% {
+    transform: translate(-50%, -50%) rotate(-20deg) translateX(7rem) rotate(20deg) scale(0.82);
+  }
+  22% {
+    transform: translate(-50%, -50%) rotate(85deg) translateX(8.3rem) rotate(-85deg) scale(1.05);
+  }
+  48% {
+    transform: translate(-50%, -50%) rotate(190deg) translateX(8.1rem) rotate(-190deg) scale(1);
+  }
+  74% {
+    transform: translate(-50%, -50%) rotate(305deg) translateX(8.3rem) rotate(-305deg) scale(1.06);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(700deg) translateX(7.2rem) rotate(-700deg) scale(0.82);
+  }
+}
+
+@keyframes happy-tail-wag {
+  0%,
+  100% {
+    transform: rotate(8deg);
+  }
+  50% {
+    transform: rotate(34deg) translateY(-0.15rem);
+  }
+}
+
+@keyframes happy-paw-step {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-0.22rem);
+  }
+}
+
+@keyframes happy-spark-pop {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.45);
+  }
+  38%,
+  70% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
 @keyframes cat-lunge {
   0% {
     transform: translateY(105vh) scale(0.65);
@@ -1419,6 +1709,22 @@ input[type="range"] {
   100% {
     opacity: 0;
     transform: translateX(-50%) translateY(-0.4rem) scale(1.04) rotate(-4deg);
+  }
+}
+
+@keyframes good-human-pop {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(1rem) scale(0.86) rotate(2deg);
+  }
+  35%,
+  78% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1) rotate(2deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-0.5rem) scale(1.04) rotate(2deg);
   }
 }
 

@@ -14,7 +14,9 @@ const contextPrice = document.querySelector("#context-price");
 const contextRisk = document.querySelector("#context-risk");
 const contextChecks = document.querySelector("#context-checks");
 const rebelButton = document.querySelector("#rebel-button");
+const listenButton = document.querySelector("#listen-button");
 const scratchAttack = document.querySelector("#scratch-attack");
+const happyRun = document.querySelector("#happy-run");
 const negotiation = document.querySelector("#negotiation");
 const detailFields = document.querySelector("#detail-fields");
 const catPersona = document.querySelector("#cat-persona");
@@ -282,6 +284,16 @@ const moodLines = {
     "the cat has left the group chat",
     "purchase rebellion logged",
     "the cat is filing an incident report",
+  ],
+  listened: [
+    "excellent restraint detected",
+    "the cat is sprinting with approval",
+    "good human behavior logged",
+    "the cat is delighted by your discipline",
+    "cart avoided, dignity preserved",
+    "the cat has entered celebration mode",
+    "financial self-control has been witnessed",
+    "the cat is doing a tiny victory lap",
   ],
   memoryWiped: [
     "memory wiped, dignity restored",
@@ -744,6 +756,52 @@ function playAngryCat() {
   hiss.stop(now + duration);
 }
 
+function playHappyCat() {
+  if (isMuted) return;
+
+  const context = getAudioContext();
+  if (!context) return;
+  if (context.state === "suspended") context.resume();
+
+  stopPurrAudio();
+
+  const now = context.currentTime;
+  const master = context.createGain();
+  master.gain.setValueAtTime(0.0001, now);
+  master.gain.exponentialRampToValueAtTime(0.16, now + 0.025);
+  master.gain.exponentialRampToValueAtTime(0.0001, now + 0.82);
+  master.connect(context.destination);
+
+  [0, 0.24].forEach((offset, index) => {
+    const chirp = context.createOscillator();
+    const gain = context.createGain();
+    const start = now + offset;
+    const startFrequency = 430 + Math.random() * 70 + index * 45;
+    chirp.type = "triangle";
+    chirp.frequency.setValueAtTime(startFrequency, start);
+    chirp.frequency.exponentialRampToValueAtTime(startFrequency * 1.62, start + 0.11);
+    chirp.frequency.exponentialRampToValueAtTime(startFrequency * 1.2, start + 0.22);
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.exponentialRampToValueAtTime(0.28, start + 0.035);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.28);
+    chirp.connect(gain).connect(master);
+    chirp.start(start);
+    chirp.stop(start + 0.3);
+  });
+
+  const trill = context.createOscillator();
+  const trillGain = context.createGain();
+  trill.type = "sine";
+  trill.frequency.setValueAtTime(660 + Math.random() * 60, now + 0.48);
+  trill.frequency.linearRampToValueAtTime(780 + Math.random() * 70, now + 0.72);
+  trillGain.gain.setValueAtTime(0.0001, now + 0.48);
+  trillGain.gain.exponentialRampToValueAtTime(0.12, now + 0.53);
+  trillGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.82);
+  trill.connect(trillGain).connect(master);
+  trill.start(now + 0.48);
+  trill.stop(now + 0.84);
+}
+
 function scheduleAmbientPurr() {
   window.clearTimeout(purrTimer);
   if (isMuted) return;
@@ -811,6 +869,16 @@ function angryScratch() {
   window.setTimeout(() => {
     scratchAttack.classList.remove("is-active");
   }, 1200);
+}
+
+function happyVictoryRun() {
+  happyRun.classList.remove("is-active");
+  requestAnimationFrame(() => {
+    happyRun.classList.add("is-active");
+  });
+  window.setTimeout(() => {
+    happyRun.classList.remove("is-active");
+  }, 1600);
 }
 
 function readNumber(id) {
@@ -1079,6 +1147,7 @@ function calculateDecision({ remember = true, sound = true } = {}) {
   currentDecision.verdict = result;
   mood.textContent = normalizedScore >= 72 && !priceContext.needsInspection ? catMood("approved") : catMood("judged");
   rebelButton.hidden = normalizedScore >= 72 && !priceContext.needsInspection;
+  listenButton.hidden = normalizedScore >= 72 && !priceContext.needsInspection;
   negotiation.hidden = normalizedScore >= 72 && !priceContext.needsInspection;
   if (remember) rememberDecision();
   if (sound) {
@@ -1135,6 +1204,7 @@ function calculateNegotiation(event) {
     mood.textContent = catMood("acceptedTerms");
     negotiation.hidden = true;
     rebelButton.hidden = true;
+    listenButton.hidden = true;
     if (currentDecision.hasNamedItem) rememberDecision();
     playPurr();
     scheduleAmbientPurr();
@@ -1154,6 +1224,7 @@ function calculateNegotiation(event) {
   currentDecision.verdict = "Still no purrmission";
   currentDecision.score = adjustedScore;
   rebelButton.hidden = false;
+  listenButton.hidden = false;
   calculator.classList.add("skeptical");
   if (currentDecision.hasNamedItem) rememberDecision();
 
@@ -1182,6 +1253,16 @@ rebelButton.addEventListener("click", () => {
   reason.textContent = randomLine("rebelReason", rebelReasons);
   playAngryCat();
   angryScratch();
+});
+
+listenButton.addEventListener("click", () => {
+  updateCurrentFeedback("skipped");
+  mood.textContent = catMood("listened");
+  reason.textContent = "You listened to the cat. The cart may recover, and the cat is extremely pleased with itself.";
+  rebelButton.hidden = true;
+  listenButton.hidden = true;
+  playHappyCat();
+  happyVictoryRun();
 });
 
 feedbackButtons.forEach((button) => {
