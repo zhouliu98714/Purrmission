@@ -743,13 +743,14 @@ input[type="range"] {
   top: 1.7rem;
 }
 
-.calculator.is-muted .eye {
+.calculator.eye-roll .eye {
   height: 0.8rem;
   background: #fff;
   border: 0.12rem solid var(--ink);
+  animation: roll-eyes 850ms ease both;
 }
 
-.calculator.is-muted .eye::after {
+.calculator.eye-roll .eye::after {
   content: "";
   position: absolute;
   top: 0.1rem;
@@ -758,6 +759,17 @@ input[type="range"] {
   height: 0.26rem;
   border-radius: 50%;
   background: var(--ink);
+}
+
+@keyframes roll-eyes {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  35%,
+  70% {
+    transform: translateY(-0.08rem);
+  }
 }
 
 @keyframes purr {

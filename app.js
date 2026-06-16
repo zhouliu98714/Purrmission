@@ -187,6 +187,7 @@ function scheduleAmbientPurr() {
 }
 
 function setMuted(nextMuted, { silent = false } = {}) {
+  const wasMuted = isMuted;
   isMuted = nextMuted;
   localStorage.setItem(SOUND_KEY, String(isMuted));
   soundToggle.setAttribute("aria-pressed", String(isMuted));
@@ -197,6 +198,15 @@ function setMuted(nextMuted, { silent = false } = {}) {
   if (isMuted) {
     window.clearTimeout(purrTimer);
     mood.textContent = "muted. the cat is judging silently";
+    if (!wasMuted && !silent) {
+      calculator.classList.remove("eye-roll");
+      requestAnimationFrame(() => {
+        calculator.classList.add("eye-roll");
+      });
+      window.setTimeout(() => {
+        calculator.classList.remove("eye-roll");
+      }, 900);
+    }
     return;
   }
 
