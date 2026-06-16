@@ -16,8 +16,14 @@ const personaNote = document.querySelector("#persona-note");
 const historyList = document.querySelector("#history-list");
 const clearHistory = document.querySelector("#clear-history");
 const feedbackButtons = document.querySelectorAll("[data-feedback]");
+const soundToggle = document.querySelector("#sound-toggle");
 
 const STORAGE_KEY = "purrmission-history";
+const SOUND_KEY = "purrmission-muted";
+
+let audioContext;
+let purrTimer;
+let isMuted = localStorage.getItem(SOUND_KEY) === "true";
 
 let currentDecision = {
   item: "this",
@@ -26,7 +32,7 @@ let currentDecision = {
   uses: 0,
   score: 0,
   budgetRatio: 0,
-  verdict: "Wait 72 hours",
+  verdict: "Purrhaps wait",
   feedback: [],
   id: null,
   hasNamedItem: false,
@@ -46,6 +52,88 @@ function money(value) {
     currency: "USD",
     maximumFractionDigits: value >= 10 ? 0 : 2,
   }).format(value);
+}
+
+function ensureAudio() {
+  if (isMuted) return null;
+  const AudioEngine = window.AudioContext || window.webkitAudioContext;
+  if (!AudioEngine) return null;
+  if (!audioContext) {
+    audioContext = new AudioEngine();
+  }
+  if (audioContext.state === "suspended") {
+    audioContext.resume();
+  }
+  return audioContext;
+}
+
+function playPurr({ mood = "soft" } = {}) {
+  const context = ensureAudio();
+  if (!context) return;
+
+  const now = context.currentTime;
+  const duration = 0.35 + Math.random() * 0.55;
+  const base = mood === "grumpy" ? 42 : 55 + Math.random() * 20;
+  const carrier = context.createOscillator();
+  const wobble = context.createOscillator();
+  const carrierGain = context.createGain();
+  const wobbleGain = context.createGain();
+  const filter = context.createBiquadFilter();
+  const output = context.createGain();
+
+  carrier.type = "sawtooth";
+  carrier.frequency.setValueAtTime(base, now);
+  carrier.frequency.linearRampToValueAtTime(base + (Math.random() * 10 - 5), now + duration);
+  wobble.type = "sine";
+  wobble.frequency.setValueAtTime(9 + Math.random() * 9, now);
+  wobbleGain.gain.setValueAtTime(5 + Math.random() * 7, now);
+  filter.type = "lowpass";
+  filter.frequency.setValueAtTime(mood === "grumpy" ? 180 : 240 + Math.random() * 120, now);
+  output.gain.setValueAtTime(0.0001, now);
+  output.gain.exponentialRampToValueAtTime(mood === "grumpy" ? 0.035 : 0.024, now + 0.05);
+  output.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+  wobble.connect(wobbleGain);
+  wobbleGain.connect(carrier.frequency);
+  carrier.connect(carrierGain);
+  carrierGain.connect(filter);
+  filter.connect(output);
+  output.connect(context.destination);
+
+  carrier.start(now);
+  wobble.start(now);
+  carrier.stop(now + duration + 0.04);
+  wobble.stop(now + duration + 0.04);
+}
+
+function scheduleAmbientPurr() {
+  window.clearTimeout(purrTimer);
+  if (isMuted) return;
+
+  purrTimer = window.setTimeout(() => {
+    playPurr();
+    scheduleAmbientPurr();
+  }, 5500 + Math.random() * 9000);
+}
+
+function setMuted(nextMuted, { silent = false } = {}) {
+  isMuted = nextMuted;
+  localStorage.setItem(SOUND_KEY, String(isMuted));
+  soundToggle.setAttribute("aria-pressed", String(isMuted));
+  soundToggle.setAttribute("aria-label", isMuted ? "Turn purr sounds on" : "Mute purr sounds");
+  soundToggle.textContent = isMuted ? "purr off" : "purr on";
+  calculator.classList.toggle("is-muted", isMuted);
+
+  if (isMuted) {
+    window.clearTimeout(purrTimer);
+    mood.textContent = "muted. the cat is judging silently";
+    return;
+  }
+
+  if (!silent) {
+    playPurr();
+    scheduleAmbientPurr();
+  }
 }
 
 function bounceCat() {
@@ -101,7 +189,9 @@ function profileFromHistory(history) {
   const defied = history.filter(
     (entry) =>
       entry.feedback.includes("bought") &&
-      ["Wait 72 hours", "Skip for now", "Still no"].includes(entry.verdict),
+      ["Purrhaps wait", "No purrmission", "Still no purrmission", "Wait 72 hours", "Skip for now", "Still no"].includes(
+        entry.verdict,
+      ),
   ).length;
   const saverScore = Math.round((skipped / total) * 100);
   const spenderScore = Math.round((bought / total) * 100);
@@ -215,7 +305,7 @@ function updateCurrentFeedback(feedback) {
   mood.textContent = feedback === "regretted" ? "the cat is taking notes" : "memory updated";
 }
 
-function calculateDecision({ remember = true } = {}) {
+function calculateDecision({ remember = true, sound = true } = {}) {
   const itemName = document.querySelector("#item").value.trim();
   const item = itemName || "this";
   const price = readNumber("price");
@@ -254,13 +344,13 @@ function calculateDecision({ remember = true } = {}) {
   let message;
 
   if (normalizedScore >= 72) {
-    result = "Buy it";
-    message = `${item} looks useful enough. The cat allows the purchase, but still wants the receipt.`;
+    result = "Purrmission granted";
+    message = `${item} looks useful enough. The cat allows this purrchase, but still wants the receipt.`;
   } else if (normalizedScore >= 50) {
-    result = "Wait 72 hours";
+    result = "Purrhaps wait";
     message = `${item} may be fine, but the cat smells impulse. Revisit it after the mood changes.`;
   } else {
-    result = "Skip for now";
+    result = "No purrmission";
     message = `${item} is taking a big bite for the value. The cat recommends closing the tab.`;
     calculator.classList.add("skeptical");
   }
@@ -276,6 +366,10 @@ function calculateDecision({ remember = true } = {}) {
   rebelButton.hidden = normalizedScore >= 72;
   negotiation.hidden = normalizedScore >= 72;
   if (remember) rememberDecision();
+  if (sound) {
+    playPurr({ mood: normalizedScore >= 72 ? "soft" : "grumpy" });
+    scheduleAmbientPurr();
+  }
   bounceCat();
 
   if (budgetRatio > 1) {
@@ -312,28 +406,31 @@ function calculateNegotiation(event) {
   catScore.textContent = adjustedScore;
 
   if (adjustedScore >= 72 && adjustedBudgetRatio <= 1) {
-    verdict.textContent = "Conditional yes";
+    verdict.textContent = "Conditional purrmission";
     reason.textContent = `${currentDecision.item} is allowed if you wait ${waitDays} day${waitDays === 1 ? "" : "s"}, pay no more than ${money(targetPrice)}, and use it ${promisedUsage}. The cat has made a legally fuzzy exception.`;
-    currentDecision.verdict = "Conditional yes";
+    currentDecision.verdict = "Conditional purrmission";
     currentDecision.score = adjustedScore;
     mood.textContent = "the cat accepts your terms";
     negotiation.hidden = true;
     rebelButton.hidden = true;
     if (currentDecision.hasNamedItem) rememberDecision();
+    playPurr();
+    scheduleAmbientPurr();
     bounceCat();
     return;
   }
 
-  verdict.textContent = "Still no";
+  verdict.textContent = "Still no purrmission";
   reason.textContent = `The counteroffer improved things, but not enough. The cat wants a lower price, more real use, or a cleaner tradeoff.`;
   mood.textContent = "counteroffer rejected";
-  currentDecision.verdict = "Still no";
+  currentDecision.verdict = "Still no purrmission";
   currentDecision.score = adjustedScore;
   rebelButton.hidden = false;
   calculator.classList.add("skeptical");
   if (currentDecision.hasNamedItem) rememberDecision();
 
   if (adjustedBudgetRatio > 1) {
+    playPurr({ mood: "grumpy" });
     window.setTimeout(angryScratch, 180);
   }
 }
@@ -353,8 +450,9 @@ negotiation.addEventListener("submit", calculateNegotiation);
 
 rebelButton.addEventListener("click", () => {
   mood.textContent = "the cat saw that";
-  reason.textContent = "You bought it anyway. The cat is now emotionally unavailable.";
+  reason.textContent = "You purrchased it anyway. The cat is now emotionally unavailable.";
   updateCurrentFeedback("bought");
+  playPurr({ mood: "grumpy" });
   angryScratch();
 });
 
@@ -367,9 +465,15 @@ feedbackButtons.forEach((button) => {
 clearHistory.addEventListener("click", () => {
   saveHistory([]);
   mood.textContent = "memory wiped, dignity restored";
+  playPurr();
+});
+
+soundToggle.addEventListener("click", () => {
+  setMuted(!isMuted);
 });
 
 updateImpulseLabel();
-calculateDecision({ remember: false });
+setMuted(isMuted, { silent: true });
+calculateDecision({ remember: false, sound: false });
 renderProfile();
 renderHistory();

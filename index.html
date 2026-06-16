@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Purrmission</title>
-    <link rel="stylesheet" href="styles.css?v=6" />
+    <link rel="stylesheet" href="styles.css?v=7" />
   </head>
   <body>
     <main class="shell" aria-label="Purrmission purchase advisor">
@@ -27,6 +27,9 @@
             <h1 id="app-title">Purrmission</h1>
             <p id="mood">ask the cat before you buy</p>
           </div>
+          <button class="sound-toggle" id="sound-toggle" type="button" aria-pressed="false" aria-label="Mute purr sounds">
+            purr on
+          </button>
         </div>
 
         <section class="profile-card" aria-label="Cat personality profile">
@@ -75,7 +78,7 @@
             <input id="impulse" name="impulse" type="range" min="1" max="5" value="3" />
           </label>
 
-          <button class="judge-button" type="submit">Ask the cat</button>
+          <button class="judge-button" type="submit">Ask for Purrmission</button>
         </form>
 
         <section class="result" id="result" aria-live="polite">
@@ -131,9 +134,9 @@
                 </select>
               </label>
             </div>
-            <button class="negotiate-button" type="submit">Submit counteroffer</button>
+            <button class="negotiate-button" type="submit">Submit counterpurrposal</button>
           </form>
-          <button class="rebel-button" id="rebel-button" type="button" hidden>I bought it anyway</button>
+          <button class="rebel-button" id="rebel-button" type="button" hidden>I purrchased it anyway</button>
         </section>
 
         <section class="feedback-panel" id="feedback-panel" aria-label="Purchase follow-up">
@@ -174,6 +177,6 @@
       <span class="scratch scratch-three"></span>
       <p>NOPE</p>
     </div>
-    <script src="app.js?v=7"></script>
+    <script src="app.js?v=8"></script>
   </body>
 </html>

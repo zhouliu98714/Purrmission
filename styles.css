@@ -73,6 +73,7 @@ body {
 
 .brand {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.85rem;
   min-height: 4.5rem;
@@ -90,6 +91,24 @@ body {
   min-height: 1.2rem;
   color: var(--muted);
   font-size: 0.95rem;
+}
+
+.sound-toggle {
+  margin-left: auto;
+  min-width: 5.4rem;
+  min-height: 2.35rem;
+  border: 1px solid rgba(48, 40, 58, 0.1);
+  border-radius: 99rem;
+  background: #fff;
+  color: var(--paw-dark);
+  cursor: pointer;
+  font: 850 0.78rem / 1 Inter, ui-sans-serif, system-ui, sans-serif;
+  box-shadow: 0 0.18rem 0 var(--panel-dark);
+}
+
+.sound-toggle[aria-pressed="true"] {
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.58);
 }
 
 .profile-card {
@@ -724,6 +743,23 @@ input[type="range"] {
   top: 1.7rem;
 }
 
+.calculator.is-muted .eye {
+  height: 0.8rem;
+  background: #fff;
+  border: 0.12rem solid var(--ink);
+}
+
+.calculator.is-muted .eye::after {
+  content: "";
+  position: absolute;
+  top: 0.1rem;
+  right: 0.02rem;
+  width: 0.26rem;
+  height: 0.26rem;
+  border-radius: 50%;
+  background: var(--ink);
+}
+
 @keyframes purr {
   0%,
   100% {
@@ -817,5 +853,10 @@ input[type="range"] {
 
   .brand h1 {
     font-size: 1.75rem;
+  }
+
+  .sound-toggle {
+    width: 100%;
+    margin-left: 0;
   }
 }
