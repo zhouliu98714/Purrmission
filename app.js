@@ -1506,9 +1506,26 @@ function closeHelpDots(exceptDot) {
   });
 }
 
+function alignHelpDot(dot) {
+  dot.classList.remove("align-left", "align-right");
+  const { left, right } = dot.getBoundingClientRect();
+  const center = (left + right) / 2;
+  const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+
+  if (center > viewportWidth * 0.62) {
+    dot.classList.add("align-right");
+    return;
+  }
+
+  if (center < viewportWidth * 0.38) {
+    dot.classList.add("align-left");
+  }
+}
+
 function toggleHelpDot(dot) {
   const willOpen = !dot.classList.contains("is-open");
   closeHelpDots(dot);
+  if (willOpen) alignHelpDot(dot);
   dot.classList.toggle("is-open", willOpen);
   dot.setAttribute("aria-expanded", String(willOpen));
 }
@@ -1549,6 +1566,10 @@ document.addEventListener("pointerdown", (event) => {
   if (!event.target.closest(".help-dot")) {
     closeHelpDots();
   }
+});
+
+window.addEventListener("resize", () => {
+  document.querySelectorAll(".help-dot.is-open").forEach(alignHelpDot);
 });
 
 impulse.addEventListener("input", updateImpulseLabel);

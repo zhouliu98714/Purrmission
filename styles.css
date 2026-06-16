@@ -563,6 +563,42 @@ body {
   transform: translateX(-50%) translateY(0);
 }
 
+.help-dot.align-left::after {
+  left: 0;
+  transform: translateY(0.25rem);
+}
+
+.help-dot.align-left::before {
+  left: 0.42rem;
+  transform: rotate(45deg);
+}
+
+.help-dot.align-left:hover::after,
+.help-dot.align-left:focus::after,
+.help-dot.align-left:focus-visible::after,
+.help-dot.align-left.is-open::after {
+  transform: translateY(0);
+}
+
+.help-dot.align-right::after {
+  right: 0;
+  left: auto;
+  transform: translateY(0.25rem);
+}
+
+.help-dot.align-right::before {
+  right: 0.42rem;
+  left: auto;
+  transform: rotate(45deg);
+}
+
+.help-dot.align-right:hover::after,
+.help-dot.align-right:focus::after,
+.help-dot.align-right:focus-visible::after,
+.help-dot.align-right.is-open::after {
+  transform: translateY(0);
+}
+
 .check-field {
   grid-template-columns: auto 1fr;
   align-items: center;
