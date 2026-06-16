@@ -1510,14 +1510,16 @@ function alignHelpDot(dot) {
   dot.classList.remove("align-left", "align-right");
   const { left, right } = dot.getBoundingClientRect();
   const center = (left + right) / 2;
-  const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+  const viewportWidth =
+    window.visualViewport?.width || window.innerWidth || document.documentElement.clientWidth;
+  const edgeBuffer = Math.min(150, viewportWidth * 0.42);
 
-  if (center > viewportWidth * 0.62) {
+  if (viewportWidth - center < edgeBuffer) {
     dot.classList.add("align-right");
     return;
   }
 
-  if (center < viewportWidth * 0.38) {
+  if (center < edgeBuffer) {
     dot.classList.add("align-left");
   }
 }
