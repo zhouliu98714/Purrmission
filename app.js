@@ -29,6 +29,7 @@ let currentDecision = {
   verdict: "Wait 72 hours",
   feedback: [],
   id: null,
+  hasNamedItem: false,
 };
 
 const impulseNames = {
@@ -161,6 +162,12 @@ function renderHistory() {
 }
 
 function rememberDecision() {
+  if (!currentDecision.hasNamedItem) {
+    currentDecision.id = null;
+    mood.textContent = "name the thing to save this judgment";
+    return;
+  }
+
   const history = loadHistory();
   const entry = {
     id: Date.now(),
@@ -177,7 +184,15 @@ function rememberDecision() {
 }
 
 function updateCurrentFeedback(feedback) {
-  if (!currentDecision.id) return;
+  if (!currentDecision.hasNamedItem) {
+    mood.textContent = "name the thing before teaching the cat";
+    return;
+  }
+
+  if (!currentDecision.id) {
+    rememberDecision();
+  }
+
   const history = loadHistory();
   const entry = history.find((item) => item.id === currentDecision.id);
   if (!entry) return;
@@ -191,7 +206,8 @@ function updateCurrentFeedback(feedback) {
 }
 
 function calculateDecision({ remember = true } = {}) {
-  const item = document.querySelector("#item").value.trim() || "this";
+  const itemName = document.querySelector("#item").value.trim();
+  const item = itemName || "this";
   const price = readNumber("price");
   const budget = readNumber("budget");
   const uses = readNumber("uses");
@@ -217,6 +233,7 @@ function calculateDecision({ remember = true } = {}) {
     verdict: "",
     feedback: [],
     id: null,
+    hasNamedItem: Boolean(itemName),
   };
 
   budgetBite.textContent = budget > 0 ? `${Math.round(budgetRatio * 100)}%` : "No budget";
@@ -289,7 +306,7 @@ function calculateNegotiation(event) {
     mood.textContent = "the cat accepts your terms";
     negotiation.hidden = true;
     rebelButton.hidden = true;
-    rememberDecision();
+    if (currentDecision.hasNamedItem) rememberDecision();
     bounceCat();
     return;
   }
@@ -301,7 +318,7 @@ function calculateNegotiation(event) {
   currentDecision.score = adjustedScore;
   rebelButton.hidden = false;
   calculator.classList.add("skeptical");
-  rememberDecision();
+  if (currentDecision.hasNamedItem) rememberDecision();
 
   if (adjustedBudgetRatio > 1) {
     window.setTimeout(angryScratch, 180);
