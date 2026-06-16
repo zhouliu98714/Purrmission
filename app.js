@@ -11,6 +11,13 @@ const catScore = document.querySelector("#cat-score");
 const rebelButton = document.querySelector("#rebel-button");
 const scratchAttack = document.querySelector("#scratch-attack");
 const negotiation = document.querySelector("#negotiation");
+const catPersona = document.querySelector("#cat-persona");
+const personaNote = document.querySelector("#persona-note");
+const historyList = document.querySelector("#history-list");
+const clearHistory = document.querySelector("#clear-history");
+const feedbackButtons = document.querySelectorAll("[data-feedback]");
+
+const STORAGE_KEY = "purrmission-history";
 
 let currentDecision = {
   item: "this",
@@ -19,6 +26,9 @@ let currentDecision = {
   uses: 0,
   score: 0,
   budgetRatio: 0,
+  verdict: "Wait 72 hours",
+  feedback: [],
+  id: null,
 };
 
 const impulseNames = {
@@ -58,7 +68,129 @@ function readNumber(id) {
   return Math.max(0, Number(document.querySelector(`#${id}`).value) || 0);
 }
 
-function calculateDecision() {
+function loadHistory() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  } catch {
+    return [];
+  }
+}
+
+function saveHistory(history) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(history.slice(0, 20)));
+  renderProfile();
+  renderHistory();
+}
+
+function profileFromHistory(history) {
+  const total = history.length || 1;
+  const bought = history.filter((entry) => entry.feedback.includes("bought")).length;
+  const skipped = history.filter((entry) => entry.feedback.includes("skipped")).length;
+  const regretted = history.filter((entry) => entry.feedback.includes("regretted")).length;
+  const defied = history.filter(
+    (entry) =>
+      entry.feedback.includes("bought") &&
+      ["Wait 72 hours", "Skip for now", "Still no"].includes(entry.verdict),
+  ).length;
+  const saverScore = Math.round((skipped / total) * 100);
+  const spenderScore = Math.round((bought / total) * 100);
+  const regretScore = Math.round((regretted / total) * 100);
+
+  if (defied >= 2 || regretScore >= 35) {
+    return {
+      name: "Auditor Cat",
+      note: "The cat has noticed risky purchases and will ask for stronger proof.",
+    };
+  }
+
+  if (saverScore >= 70 && bought === 0 && history.length >= 3) {
+    return {
+      name: "Permission Cat",
+      note: "The cat may encourage reasonable purchases instead of endless self-denial.",
+    };
+  }
+
+  if (spenderScore >= 55 && history.length >= 3) {
+    return {
+      name: "Pattern Cat",
+      note: "The cat is watching for repeat triggers before you check out.",
+    };
+  }
+
+  return {
+    name: "Advisor Cat",
+    note: "The cat is still learning your spending patterns.",
+  };
+}
+
+function renderProfile() {
+  const profile = profileFromHistory(loadHistory());
+  catPersona.textContent = profile.name;
+  personaNote.textContent = profile.note;
+}
+
+function renderHistory() {
+  const history = loadHistory();
+  historyList.innerHTML = "";
+
+  if (history.length === 0) {
+    const empty = document.createElement("li");
+    const label = document.createElement("strong");
+    const badge = document.createElement("span");
+    label.textContent = "No judgments yet";
+    badge.className = "history-badge";
+    badge.textContent = "new";
+    empty.append(label, badge);
+    historyList.append(empty);
+    return;
+  }
+
+  history.slice(0, 5).forEach((entry) => {
+    const item = document.createElement("li");
+    const feedback = entry.feedback.length ? entry.feedback.join(", ") : "pending";
+    const summary = document.createElement("span");
+    const name = document.createElement("strong");
+    const badge = document.createElement("span");
+    name.textContent = entry.item;
+    summary.append(name, `${entry.verdict} · ${money(entry.price)} · ${feedback}`);
+    badge.className = "history-badge";
+    badge.textContent = entry.score;
+    item.append(summary, badge);
+    historyList.append(item);
+  });
+}
+
+function rememberDecision() {
+  const history = loadHistory();
+  const entry = {
+    id: Date.now(),
+    item: currentDecision.item,
+    price: currentDecision.price,
+    score: currentDecision.score,
+    verdict: currentDecision.verdict,
+    feedback: [],
+    createdAt: new Date().toISOString(),
+  };
+  currentDecision.id = entry.id;
+  history.unshift(entry);
+  saveHistory(history);
+}
+
+function updateCurrentFeedback(feedback) {
+  if (!currentDecision.id) return;
+  const history = loadHistory();
+  const entry = history.find((item) => item.id === currentDecision.id);
+  if (!entry) return;
+
+  if (!entry.feedback.includes(feedback)) {
+    entry.feedback.push(feedback);
+  }
+
+  saveHistory(history);
+  mood.textContent = feedback === "regretted" ? "the cat is taking notes" : "memory updated";
+}
+
+function calculateDecision({ remember = true } = {}) {
   const item = document.querySelector("#item").value.trim() || "this";
   const price = readNumber("price");
   const budget = readNumber("budget");
@@ -82,6 +214,9 @@ function calculateDecision() {
     uses,
     score: normalizedScore,
     budgetRatio,
+    verdict: "",
+    feedback: [],
+    id: null,
   };
 
   budgetBite.textContent = budget > 0 ? `${Math.round(budgetRatio * 100)}%` : "No budget";
@@ -109,9 +244,11 @@ function calculateDecision() {
 
   verdict.textContent = result;
   reason.textContent = message;
+  currentDecision.verdict = result;
   mood.textContent = normalizedScore >= 72 ? "approved, with supervision" : "judgment has been served";
   rebelButton.hidden = normalizedScore >= 72;
   negotiation.hidden = normalizedScore >= 72;
+  if (remember) rememberDecision();
   bounceCat();
 
   if (budgetRatio > 1) {
@@ -147,9 +284,12 @@ function calculateNegotiation(event) {
   if (adjustedScore >= 72 && adjustedBudgetRatio <= 1) {
     verdict.textContent = "Conditional yes";
     reason.textContent = `${currentDecision.item} is allowed if you wait ${waitDays} day${waitDays === 1 ? "" : "s"}, pay no more than ${money(targetPrice)}, and actually use it. The cat has made a legally fuzzy exception.`;
+    currentDecision.verdict = "Conditional yes";
+    currentDecision.score = adjustedScore;
     mood.textContent = "the cat accepts your terms";
     negotiation.hidden = true;
     rebelButton.hidden = true;
+    rememberDecision();
     bounceCat();
     return;
   }
@@ -157,8 +297,11 @@ function calculateNegotiation(event) {
   verdict.textContent = "Still no";
   reason.textContent = `The counteroffer improved things, but not enough. The cat wants a lower price, more real use, or a cleaner tradeoff.`;
   mood.textContent = "counteroffer rejected";
+  currentDecision.verdict = "Still no";
+  currentDecision.score = adjustedScore;
   rebelButton.hidden = false;
   calculator.classList.add("skeptical");
+  rememberDecision();
 
   if (adjustedBudgetRatio > 1) {
     window.setTimeout(angryScratch, 180);
@@ -181,8 +324,22 @@ negotiation.addEventListener("submit", calculateNegotiation);
 rebelButton.addEventListener("click", () => {
   mood.textContent = "the cat saw that";
   reason.textContent = "You bought it anyway. The cat is now emotionally unavailable.";
+  updateCurrentFeedback("bought");
   angryScratch();
 });
 
+feedbackButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    updateCurrentFeedback(button.dataset.feedback);
+  });
+});
+
+clearHistory.addEventListener("click", () => {
+  saveHistory([]);
+  mood.textContent = "memory wiped, dignity restored";
+});
+
 updateImpulseLabel();
-calculateDecision();
+calculateDecision({ remember: false });
+renderProfile();
+renderHistory();

@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Purrmission</title>
-    <link rel="stylesheet" href="styles.css?v=5" />
+    <link rel="stylesheet" href="styles.css?v=6" />
   </head>
   <body>
     <main class="shell" aria-label="Purrmission purchase advisor">
@@ -28,6 +28,14 @@
             <p id="mood">ask the cat before you buy</p>
           </div>
         </div>
+
+        <section class="profile-card" aria-label="Cat personality profile">
+          <div>
+            <span class="profile-kicker">Current cat</span>
+            <strong id="cat-persona">Advisor Cat</strong>
+          </div>
+          <p id="persona-note">The cat is still learning your spending patterns.</p>
+        </section>
 
         <form class="judge-form" id="judge-form">
           <label class="field">
@@ -119,6 +127,27 @@
           </form>
           <button class="rebel-button" id="rebel-button" type="button" hidden>I bought it anyway</button>
         </section>
+
+        <section class="feedback-panel" id="feedback-panel" aria-label="Purchase follow-up">
+          <div>
+            <strong>Teach the cat</strong>
+            <p>Mark what happened so future judgments get sharper.</p>
+          </div>
+          <div class="feedback-actions">
+            <button type="button" data-feedback="bought">Bought</button>
+            <button type="button" data-feedback="skipped">Skipped</button>
+            <button type="button" data-feedback="regretted">Regretted</button>
+            <button type="button" data-feedback="used">Used it</button>
+          </div>
+        </section>
+
+        <section class="history-panel" aria-label="Recent purchase history">
+          <div class="history-head">
+            <strong>Recent judgments</strong>
+            <button type="button" id="clear-history">Clear</button>
+          </div>
+          <ul id="history-list"></ul>
+        </section>
       </section>
     </main>
     <div class="scratch-attack" id="scratch-attack" aria-hidden="true">
@@ -137,6 +166,6 @@
       <span class="scratch scratch-three"></span>
       <p>NOPE</p>
     </div>
-    <script src="app.js?v=6"></script>
+    <script src="app.js?v=7"></script>
   </body>
 </html>
