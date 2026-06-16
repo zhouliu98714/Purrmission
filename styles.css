@@ -307,6 +307,27 @@ select:focus {
   box-shadow: 0 0.22rem 0 var(--paw), 0 0 0 0.22rem rgba(255, 127, 153, 0.13);
 }
 
+.input-prefix {
+  position: relative;
+  display: block;
+}
+
+.currency-prefix {
+  position: absolute;
+  top: 50%;
+  left: 0.9rem;
+  z-index: 1;
+  color: var(--muted);
+  font-size: 0.98rem;
+  font-weight: 850;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.money-field input {
+  padding-left: 2.35rem;
+}
+
 input[type="range"] {
   min-height: 2rem;
   padding: 0;
@@ -452,6 +473,10 @@ input[type="range"] {
   background-color: rgba(255, 255, 255, 0.1);
   color: #fff;
   box-shadow: none;
+}
+
+.negotiation .currency-prefix {
+  color: rgba(255, 253, 250, 0.72);
 }
 
 .negotiation select {

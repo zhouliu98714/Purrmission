@@ -17,9 +17,12 @@ const historyList = document.querySelector("#history-list");
 const clearHistory = document.querySelector("#clear-history");
 const feedbackButtons = document.querySelectorAll("[data-feedback]");
 const soundToggle = document.querySelector("#sound-toggle");
+const currencySelect = document.querySelector("#currency");
+const currencyPrefixes = document.querySelectorAll("[data-currency-prefix]");
 
 const STORAGE_KEY = "purrmission-history";
 const SOUND_KEY = "purrmission-muted";
+const CURRENCY_KEY = "purrmission-currency";
 const REAL_PURR_SRC = "assets/cat-purr.mp3";
 
 let audioContext;
@@ -34,9 +37,20 @@ let currentDecision = {
   score: 0,
   budgetRatio: 0,
   verdict: "Purrhaps wait",
+  currency: "USD",
   feedback: [],
   id: null,
   hasNamedItem: false,
+};
+
+const currencySymbols = {
+  USD: "$",
+  EUR: "€",
+  GBP: "£",
+  CAD: "C$",
+  AUD: "A$",
+  JPY: "¥",
+  CNY: "¥",
 };
 
 const impulseNames = {
@@ -47,12 +61,29 @@ const impulseNames = {
   5: "Dopamine sprint",
 };
 
-function money(value) {
+function selectedCurrency() {
+  return currencySelect?.value || "USD";
+}
+
+function currencySymbol(currency = selectedCurrency()) {
+  return currencySymbols[currency] || currency;
+}
+
+function money(value, currency = selectedCurrency()) {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "USD",
+    currency,
+    currencyDisplay: "narrowSymbol",
     maximumFractionDigits: value >= 10 ? 0 : 2,
   }).format(value);
+}
+
+function updateCurrencyUI() {
+  const currency = selectedCurrency();
+  localStorage.setItem(CURRENCY_KEY, currency);
+  currencyPrefixes.forEach((prefix) => {
+    prefix.textContent = currencySymbol(currency);
+  });
 }
 
 function ensureAudio() {
@@ -371,7 +402,7 @@ function renderHistory() {
     const name = document.createElement("strong");
     const badge = document.createElement("span");
     name.textContent = entry.item;
-    summary.append(name, `${entry.verdict} · ${money(entry.price)} · ${feedback}`);
+    summary.append(name, `${entry.verdict} · ${money(entry.price, entry.currency || selectedCurrency())} · ${feedback}`);
     badge.className = "history-badge";
     badge.textContent = entry.score;
     item.append(summary, badge);
@@ -391,6 +422,7 @@ function rememberDecision() {
     id: Date.now(),
     item: currentDecision.item,
     price: currentDecision.price,
+    currency: currentDecision.currency,
     score: currentDecision.score,
     verdict: currentDecision.verdict,
     feedback: [],
@@ -434,6 +466,7 @@ function calculateDecision({ remember = true, sound = true } = {}) {
   const keepPeriod = document.querySelector("#keep-period").value;
   const duplicate = Number(document.querySelector("#duplicate").value);
   const impulseValue = Number(impulse.value);
+  const currency = selectedCurrency();
 
   const hasBudget = budget > 0;
   const budgetRatio = hasBudget ? price / budget : 0;
@@ -455,13 +488,14 @@ function calculateDecision({ remember = true, sound = true } = {}) {
     score: normalizedScore,
     budgetRatio,
     verdict: "",
+    currency,
     feedback: [],
     id: null,
     hasNamedItem: Boolean(itemName),
   };
 
   budgetBite.textContent = hasBudget ? `${Math.round(budgetRatio * 100)}%` : "Not set";
-  costUse.textContent = `${money(perUse)} / use`;
+  costUse.textContent = `${money(perUse, currency)} / use`;
   catScore.textContent = normalizedScore;
 
   let result;
@@ -527,12 +561,12 @@ function calculateNegotiation(event) {
   const promisedUsage = usageLabel(promisedUses, usePeriod);
 
   budgetBite.textContent = hasBudget ? `${Math.round(adjustedBudgetRatio * 100)}%` : "Not set";
-  costUse.textContent = `${money(adjustedPerUse)} / use`;
+  costUse.textContent = `${money(adjustedPerUse, currentDecision.currency)} / use`;
   catScore.textContent = adjustedScore;
 
   if (adjustedScore >= 72 && (!hasBudget || adjustedBudgetRatio <= 1)) {
     verdict.textContent = "Conditional purrmission";
-    reason.textContent = `${currentDecision.item} is allowed if you wait ${waitDays} day${waitDays === 1 ? "" : "s"}, pay no more than ${money(targetPrice)}, and use it ${promisedUsage}. The cat has made a legally fuzzy exception.`;
+    reason.textContent = `${currentDecision.item} is allowed if you wait ${waitDays} day${waitDays === 1 ? "" : "s"}, pay no more than ${money(targetPrice, currentDecision.currency)}, and use it ${promisedUsage}. The cat has made a legally fuzzy exception.`;
     currentDecision.verdict = "Conditional purrmission";
     currentDecision.score = adjustedScore;
     mood.textContent = "the cat accepts your terms";
@@ -597,7 +631,19 @@ soundToggle.addEventListener("click", () => {
   setMuted(!isMuted);
 });
 
+currencySelect.addEventListener("change", () => {
+  updateCurrencyUI();
+  calculateDecision({ remember: false, sound: false });
+  renderHistory();
+});
+
+const savedCurrency = localStorage.getItem(CURRENCY_KEY);
+if (savedCurrency && Array.from(currencySelect.options).some((option) => option.value === savedCurrency)) {
+  currencySelect.value = savedCurrency;
+}
+
 updateImpulseLabel();
+updateCurrencyUI();
 setMuted(isMuted, { silent: true });
 calculateDecision({ remember: false, sound: false });
 renderProfile();
