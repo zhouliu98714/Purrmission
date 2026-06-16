@@ -275,6 +275,10 @@ function usageLabel(uses, period) {
   return `${uses} time${uses === 1 ? "" : "s"} per ${period}`;
 }
 
+function totalExpectedUses(uses, period, months) {
+  return Math.max(0, usesPerMonth(uses, period) * Math.max(1, months));
+}
+
 function loadHistory() {
   try {
     return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
@@ -419,23 +423,27 @@ function calculateDecision({ remember = true, sound = true } = {}) {
   const price = readNumber("price");
   const budget = readNumber("budget");
   const uses = readNumber("uses");
+  const useFrequency = document.querySelector("#use-frequency").value;
+  const useMonths = Math.max(1, readNumber("use-months"));
   const duplicate = Number(document.querySelector("#duplicate").value);
   const impulseValue = Number(impulse.value);
 
   const budgetRatio = budget > 0 ? price / budget : 1.4;
-  const useScore = Math.min(30, uses * 3);
+  const monthlyUses = usesPerMonth(uses, useFrequency);
+  const expectedUses = totalExpectedUses(uses, useFrequency, useMonths);
+  const useScore = Math.min(30, monthlyUses * 3);
   const budgetPenalty = Math.min(42, budgetRatio * 48);
   const impulsePenalty = impulseValue * 7;
   const duplicatePenalty = duplicate * 15;
   const score = Math.round(68 + useScore - budgetPenalty - impulsePenalty - duplicatePenalty);
   const normalizedScore = Math.max(0, Math.min(100, score));
-  const perUse = uses > 0 ? price / uses : price;
+  const perUse = expectedUses > 0 ? price / expectedUses : price;
 
   currentDecision = {
     item,
     price,
     budget,
-    uses,
+    uses: monthlyUses,
     score: normalizedScore,
     budgetRatio,
     verdict: "",

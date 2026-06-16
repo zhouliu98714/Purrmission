@@ -59,8 +59,23 @@
 
           <div class="field-grid">
             <label class="field">
-              <span>Uses per month</span>
+              <span>Uses</span>
               <input id="uses" name="uses" type="number" min="0" step="1" inputmode="numeric" value="8" />
+            </label>
+            <label class="field">
+              <span>Every</span>
+              <select id="use-frequency" name="use-frequency">
+                <option value="day">Day</option>
+                <option value="month" selected>Month</option>
+                <option value="year">Year</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="field-grid">
+            <label class="field">
+              <span>For months</span>
+              <input id="use-months" name="use-months" type="number" min="1" step="1" inputmode="numeric" value="12" />
             </label>
             <label class="field">
               <span>Already own something similar?</span>

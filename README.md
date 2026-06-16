@@ -1,6 +1,6 @@
 # Purrmission
 
-Purrmission is a playful purchase-decision advisor. Tell the cat what you want to buy, how much it costs, how often you will use it, and how impulsive the purchase feels. The cat gives a verdict, lets you negotiate better terms, and reacts if you ignore the advice.
+Purrmission is a playful purchase-decision advisor. Tell the cat what you want to buy, how much it costs, how often you will use it, how long you expect to keep using it, and how impulsive the purchase feels. The cat gives a verdict, estimates cost per expected use, lets you negotiate better terms, and reacts if you ignore the advice.
 
 ## Run locally
 
