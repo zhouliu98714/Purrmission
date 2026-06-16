@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Purrmission</title>
-    <link rel="stylesheet" href="styles.css?v=17" />
+    <link rel="stylesheet" href="styles.css?v=18" />
   </head>
   <body>
     <main class="shell" aria-label="Purrmission purchase advisor">
@@ -197,6 +197,29 @@
             </dl>
             <p id="context-checks"></p>
           </div>
+          <div class="ai-card" id="ai-card" hidden>
+            <div class="ai-card-head">
+              <span>AI cat context</span>
+              <strong id="ai-title">Market context unknown</strong>
+            </div>
+            <p id="ai-summary"></p>
+            <dl>
+              <div>
+                <dt>Specificity</dt>
+                <dd id="ai-specificity">Unknown</dd>
+              </div>
+              <div>
+                <dt>Reference</dt>
+                <dd id="ai-reference">Unknown</dd>
+              </div>
+              <div>
+                <dt>Risk</dt>
+                <dd id="ai-risk">Unknown</dd>
+              </div>
+            </dl>
+            <p id="ai-missing"></p>
+          </div>
+          <button class="ai-button" id="ai-context-button" type="button">Ask AI cat</button>
           <form class="negotiation" id="negotiation" hidden>
             <div class="negotiation-head">
               <strong>Negotiate with the cat</strong>
@@ -304,6 +327,6 @@
       </div>
       <p>GOOD HUMAN</p>
     </div>
-    <script src="app.js?v=30"></script>
+    <script src="app.js?v=32"></script>
   </body>
 </html>

@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://purrmission.app/schemas/ai-context.v1.json",
+  "title": "Purrmission AI Context",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "normalized_item",
+    "original_item",
+    "currency",
+    "price",
+    "item_context",
+    "market_context",
+    "missing_factors",
+    "risk",
+    "decision_influence",
+    "cache_key",
+    "validity",
+    "cat_note"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "normalized_item": { "type": "string" },
+    "original_item": { "type": "string" },
+    "currency": { "type": "string", "minLength": 3, "maxLength": 3 },
+    "price": { "type": "number", "minimum": 0 },
+    "item_context": {
+      "type": "object",
+      "required": [
+        "specificity",
+        "category",
+        "subcategory",
+        "brand",
+        "model_family",
+        "model_variant",
+        "condition",
+        "market_segment"
+      ],
+      "properties": {
+        "specificity": {
+          "enum": [
+            "generic_category",
+            "brand_only",
+            "brand_category",
+            "brand_model",
+            "brand_model_condition",
+            "exact_product",
+            "unclear"
+          ]
+        },
+        "category": { "type": "string" },
+        "subcategory": { "type": "string" },
+        "brand": { "type": "string" },
+        "model_family": { "type": "string" },
+        "model_variant": { "type": "string" },
+        "condition": {
+          "enum": ["new", "used", "refurbished", "open_box", "unknown", "not_applicable"]
+        },
+        "market_segment": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "market_context": {
+      "type": "object",
+      "required": ["reference_frame", "price_position", "confidence", "summary"],
+      "properties": {
+        "reference_frame": {
+          "enum": [
+            "general_category",
+            "brand_category",
+            "brand_market",
+            "model_market",
+            "model_resale_market",
+            "retail_price",
+            "service_market",
+            "cannot_assess"
+          ]
+        },
+        "price_position": {
+          "enum": ["suspiciously_low", "low", "possibly_low", "typical", "possibly_high", "high", "unknown"]
+        },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "summary": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "missing_factors": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "risk": {
+      "type": "object",
+      "required": ["level", "reasons", "checks"],
+      "properties": {
+        "level": { "enum": ["low", "medium", "high", "serious", "unknown"] },
+        "reasons": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "checks": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "decision_influence": {
+      "type": "object",
+      "required": ["score_shift", "should_force_inspection", "should_ask_followup", "followup_question"],
+      "properties": {
+        "score_shift": { "type": "number", "minimum": -30, "maximum": 30 },
+        "should_force_inspection": { "type": "boolean" },
+        "should_ask_followup": { "type": "boolean" },
+        "followup_question": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "cache_key": {
+      "type": "object",
+      "required": ["category", "brand", "model_family", "condition", "currency", "price_band"],
+      "properties": {
+        "category": { "type": "string" },
+        "brand": { "type": "string" },
+        "model_family": { "type": "string" },
+        "condition": { "type": "string" },
+        "currency": { "type": "string" },
+        "price_band": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "validity": {
+      "type": "object",
+      "required": ["region", "valid_until_days", "needs_refresh"],
+      "properties": {
+        "region": { "type": "string" },
+        "valid_until_days": { "type": "integer", "minimum": 1 },
+        "needs_refresh": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "cat_note": { "type": "string" },
+    "source": { "type": "string" }
+  },
+  "additionalProperties": false
+}

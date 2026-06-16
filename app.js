@@ -13,6 +13,14 @@ const contextTitle = document.querySelector("#context-title");
 const contextPrice = document.querySelector("#context-price");
 const contextRisk = document.querySelector("#context-risk");
 const contextChecks = document.querySelector("#context-checks");
+const aiContextButton = document.querySelector("#ai-context-button");
+const aiCard = document.querySelector("#ai-card");
+const aiTitle = document.querySelector("#ai-title");
+const aiSummary = document.querySelector("#ai-summary");
+const aiSpecificity = document.querySelector("#ai-specificity");
+const aiReference = document.querySelector("#ai-reference");
+const aiRisk = document.querySelector("#ai-risk");
+const aiMissing = document.querySelector("#ai-missing");
 const rebelButton = document.querySelector("#rebel-button");
 const listenButton = document.querySelector("#listen-button");
 const scratchAttack = document.querySelector("#scratch-attack");
@@ -33,6 +41,7 @@ const STORAGE_KEY = "purrmission-history";
 const SOUND_KEY = "purrmission-muted";
 const CURRENCY_KEY = "purrmission-currency";
 const REAL_PURR_SRC = "assets/cat-purr.mp3";
+const AI_SCHEMA_VERSION = "1.0";
 
 let purrAudio;
 let purrTimer;
@@ -653,6 +662,218 @@ function renderContextCard(priceContext) {
     : "";
 }
 
+function compactLabel(value) {
+  return String(value || "unknown").replaceAll("_", " ");
+}
+
+function priceBand(price) {
+  if (price <= 0) return "unknown";
+  if (price < 50) return "0-50";
+  if (price < 250) return "50-250";
+  if (price < 1000) return "250-1000";
+  if (price < 2500) return "1000-2500";
+  if (price < 5000) return "2500-5000";
+  return "5000-plus";
+}
+
+function inferMockAiContext(item, price, currency) {
+  const rawItem = item.trim();
+  const normalizedItem = rawItem.toLowerCase();
+  const hasHermes = /\bherm[eè]s\b/.test(normalizedItem);
+  const hasHerbag = normalizedItem.includes("herbag");
+  const hasBag = normalizedItem.includes("bag") || normalizedItem.includes("purse") || normalizedItem.includes("handbag");
+  const hasUsed = /\b(used|pre[- ]owned|secondhand|vintage)\b/.test(normalizedItem);
+  const hasNew = /\b(new|brand new)\b/.test(normalizedItem);
+  const condition = hasUsed ? "used" : hasNew ? "new" : "unknown";
+
+  if (!rawItem) return null;
+
+  if (hasHermes || hasHerbag) {
+    const specificity = hasHerbag
+      ? condition === "unknown"
+        ? "brand_model"
+        : "brand_model_condition"
+      : hasBag
+        ? "brand_category"
+        : "brand_only";
+    const pricePosition = hasHerbag && price >= 2500 && price <= 3800 ? "typical" : price < 2500 ? "possibly_low" : "unknown";
+
+    return {
+      schema_version: AI_SCHEMA_VERSION,
+      normalized_item: normalizedItem,
+      original_item: rawItem,
+      currency,
+      price,
+      item_context: {
+        specificity,
+        category: "luxury_bag",
+        subcategory: hasBag || hasHerbag ? "handbag" : "unknown",
+        brand: "Hermes",
+        model_family: hasHerbag ? "Herbag" : "unknown",
+        model_variant: normalizedItem.includes("zip 31") ? "Zip 31" : "unknown",
+        condition,
+        market_segment: "luxury_resale",
+      },
+      market_context: {
+        reference_frame: hasHerbag ? "model_resale_market" : "brand_category",
+        price_position: pricePosition,
+        confidence: hasHerbag ? 0.66 : 0.48,
+        summary: hasHerbag
+          ? `${money(price, currency)} may be plausible for a Hermes Herbag, but condition, seller, and authentication decide whether it is actually good.`
+          : `${money(price, currency)} may be low for some Hermes bags, but Hermes prices vary heavily by model. The cat needs the exact model before calling it a deal.`,
+      },
+      missing_factors: hasHerbag
+        ? ["condition details", "authentication", "seller reputation", "return policy", "included accessories"]
+        : ["model", "condition", "authentication", "seller reputation", "return policy"],
+      risk: {
+        level: "high",
+        reasons: ["authenticity-sensitive", "condition can change value sharply", "resale prices vary by model"],
+        checks: ["authentication", "clear photos", "date stamp", "seller reputation", "return policy"],
+      },
+      decision_influence: {
+        score_shift: hasHerbag ? 2 : 0,
+        should_force_inspection: false,
+        should_ask_followup: true,
+        followup_question: hasHerbag
+          ? "What condition is it in, and is it authenticated?"
+          : "Which Hermes model is it, and is it new or used?",
+      },
+      cache_key: {
+        category: "luxury_bag",
+        brand: "hermes",
+        model_family: hasHerbag ? "herbag" : "unknown",
+        condition,
+        currency,
+        price_band: priceBand(price),
+      },
+      validity: {
+        region: "US",
+        valid_until_days: 60,
+        needs_refresh: false,
+      },
+      cat_note: hasHerbag
+        ? "The cat recognizes the model, but still wants condition and authenticity proof."
+        : "The cat recognizes Hermes energy, but refuses to judge without the model.",
+      source: "local_mock",
+    };
+  }
+
+  return {
+    schema_version: AI_SCHEMA_VERSION,
+    normalized_item: normalizedItem,
+    original_item: rawItem,
+    currency,
+    price,
+    item_context: {
+      specificity: hasBag ? "generic_category" : "unclear",
+      category: hasBag ? "bag" : "unknown",
+      subcategory: "unknown",
+      brand: "unknown",
+      model_family: "unknown",
+      model_variant: "unknown",
+      condition: "unknown",
+      market_segment: "unknown",
+    },
+    market_context: {
+      reference_frame: hasBag ? "general_category" : "cannot_assess",
+      price_position: "unknown",
+      confidence: hasBag ? 0.42 : 0.28,
+      summary: "The local mock AI does not know enough yet. A real AI check would identify brand, model, market frame, and missing details.",
+    },
+    missing_factors: ["brand", "model", "condition", "seller", "return policy"],
+    risk: {
+      level: hasBag ? "medium" : "unknown",
+      reasons: ["details are incomplete"],
+      checks: ["specific product name", "condition", "return policy"],
+    },
+    decision_influence: {
+      score_shift: 0,
+      should_force_inspection: false,
+      should_ask_followup: true,
+      followup_question: "What brand, model, and condition is it?",
+    },
+    cache_key: {
+      category: hasBag ? "bag" : "unknown",
+      brand: "unknown",
+      model_family: "unknown",
+      condition: "unknown",
+      currency,
+      price_band: priceBand(price),
+    },
+    validity: {
+      region: "US",
+      valid_until_days: 30,
+      needs_refresh: false,
+    },
+    cat_note: "The cat needs a sharper product name before making market claims.",
+    source: "local_mock",
+  };
+}
+
+function renderAiContextCard(aiContext) {
+  if (!aiContext) {
+    aiCard.hidden = true;
+    return;
+  }
+
+  aiCard.hidden = false;
+  const modelLabel = compactLabel(aiContext.item_context.model_family);
+  aiTitle.textContent = aiContext.item_context.brand !== "unknown"
+    ? modelLabel === "unknown"
+      ? aiContext.item_context.brand
+      : `${aiContext.item_context.brand} ${modelLabel}`
+    : compactLabel(aiContext.item_context.category);
+  aiSummary.textContent = aiContext.market_context.summary;
+  aiSpecificity.textContent = compactLabel(aiContext.item_context.specificity);
+  aiReference.textContent = compactLabel(aiContext.market_context.reference_frame);
+  aiRisk.textContent = compactLabel(aiContext.risk.level);
+  aiMissing.textContent = aiContext.missing_factors.length
+    ? `Needs: ${aiContext.missing_factors.join(", ")}.`
+    : aiContext.cat_note;
+}
+
+async function requestAiContext() {
+  const itemName = document.querySelector("#item").value.trim();
+  const price = readNumber("price");
+  const currency = selectedCurrency();
+
+  if (!itemName) {
+    mood.textContent = catMood("unnamedSave");
+    return;
+  }
+
+  aiContextButton.disabled = true;
+  aiContextButton.textContent = "AI cat is sniffing...";
+
+  try {
+    let aiContext;
+    const endpoint = window.PURRMISSION_AI_ENDPOINT;
+    if (endpoint) {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ item: itemName, price, currency, schema_version: AI_SCHEMA_VERSION }),
+      });
+      if (!response.ok) throw new Error("AI context request failed");
+      aiContext = await response.json();
+    } else {
+      aiContext = inferMockAiContext(itemName, price, currency);
+    }
+
+    renderAiContextCard(aiContext);
+    mood.textContent = aiContext?.decision_influence?.should_ask_followup
+      ? aiContext.decision_influence.followup_question
+      : aiContext.cat_note;
+  } catch {
+    const fallbackContext = inferMockAiContext(itemName, price, currency);
+    renderAiContextCard(fallbackContext);
+    mood.textContent = "AI cat fell back to local sniff mode";
+  } finally {
+    aiContextButton.disabled = false;
+    aiContextButton.textContent = "Ask AI cat";
+  }
+}
+
 function getPurrAudio() {
   if (typeof Audio === "undefined") return null;
 
@@ -1080,6 +1301,7 @@ function updateCurrentFeedback(feedback) {
 }
 
 function calculateDecision({ remember = true, sound = true } = {}) {
+  renderAiContextCard(null);
   const itemName = document.querySelector("#item").value.trim();
   const item = itemName || "this";
   const price = readNumber("price");
@@ -1281,6 +1503,8 @@ form.addEventListener("submit", (event) => {
 });
 
 negotiation.addEventListener("submit", calculateNegotiation);
+
+aiContextButton.addEventListener("click", requestAiContext);
 
 rebelButton.addEventListener("click", () => {
   updateCurrentFeedback("bought");
