@@ -67,10 +67,73 @@ function ensureAudio() {
   return audioContext;
 }
 
-function playPurr({ mood = "soft" } = {}) {
-  const context = ensureAudio();
-  if (!context) return;
+function createPurrWavBuffer({ mood = "soft" } = {}) {
+  const sampleRate = 16000;
+  const duration = 0.45 + Math.random() * 0.45;
+  const sampleCount = Math.floor(sampleRate * duration);
+  const bytesPerSample = 2;
+  const dataSize = sampleCount * bytesPerSample;
+  const buffer = new ArrayBuffer(44 + dataSize);
+  const view = new DataView(buffer);
+  const base = mood === "grumpy" ? 92 + Math.random() * 18 : 74 + Math.random() * 22;
+  const wobble = 8 + Math.random() * 9;
+  const volume = mood === "grumpy" ? 0.2 : 0.16;
 
+  function writeString(offset, value) {
+    for (let i = 0; i < value.length; i += 1) {
+      view.setUint8(offset + i, value.charCodeAt(i));
+    }
+  }
+
+  writeString(0, "RIFF");
+  view.setUint32(4, 36 + dataSize, true);
+  writeString(8, "WAVE");
+  writeString(12, "fmt ");
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, 1, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * bytesPerSample, true);
+  view.setUint16(32, bytesPerSample, true);
+  view.setUint16(34, 16, true);
+  writeString(36, "data");
+  view.setUint32(40, dataSize, true);
+
+  for (let index = 0; index < sampleCount; index += 1) {
+    const time = index / sampleRate;
+    const envelope = Math.sin(Math.PI * (index / sampleCount));
+    const pulse = 0.55 + 0.45 * Math.sin(2 * Math.PI * wobble * time);
+    const wave =
+      Math.sin(2 * Math.PI * base * time) * 0.54 +
+      Math.sin(2 * Math.PI * base * 1.92 * time) * 0.26 +
+      Math.sin(2 * Math.PI * base * 2.7 * time) * 0.14 +
+      (Math.random() * 2 - 1) * 0.03;
+    const sample = Math.max(-1, Math.min(1, wave * pulse * envelope * volume));
+    view.setInt16(44 + index * 2, sample * 32767, true);
+  }
+
+  return buffer;
+}
+
+function playGeneratedPurr(options) {
+  if (isMuted || typeof Blob === "undefined" || typeof URL === "undefined") return false;
+
+  try {
+    const audio = document.createElement("audio");
+    const blobUrl = URL.createObjectURL(new Blob([createPurrWavBuffer(options)], { type: "audio/wav" }));
+    audio.src = blobUrl;
+    audio.volume = 0.72;
+    audio.addEventListener("ended", () => URL.revokeObjectURL(blobUrl), { once: true });
+    audio.play().catch(() => URL.revokeObjectURL(blobUrl));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function playSynthPurr({ mood = "soft" } = {}) {
+  const context = ensureAudio();
+  if (!context) return false;
   const now = context.currentTime;
   const duration = 0.35 + Math.random() * 0.55;
   const base = mood === "grumpy" ? 42 : 55 + Math.random() * 20;
@@ -104,6 +167,13 @@ function playPurr({ mood = "soft" } = {}) {
   wobble.start(now);
   carrier.stop(now + duration + 0.04);
   wobble.stop(now + duration + 0.04);
+  return true;
+}
+
+function playPurr(options = {}) {
+  if (isMuted) return;
+  const played = playGeneratedPurr(options);
+  if (!played) playSynthPurr(options);
 }
 
 function scheduleAmbientPurr() {
