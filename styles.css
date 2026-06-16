@@ -572,10 +572,43 @@ body {
 }
 
 .check-field input {
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+  position: relative;
   width: 1.15rem;
+  height: 1.15rem;
   min-height: 1.15rem;
-  accent-color: var(--paw);
+  flex: 0 0 1.15rem;
+  margin: 0;
+  padding: 0;
+  border: 2px solid rgba(118, 108, 130, 0.28);
+  border-radius: 0.32rem;
+  background: #fff;
+  cursor: pointer;
   box-shadow: none;
+}
+
+.check-field input:checked {
+  border-color: var(--paw-dark);
+  background: var(--paw);
+}
+
+.check-field input:checked::after {
+  content: "";
+  position: absolute;
+  left: 0.28rem;
+  top: 0.11rem;
+  width: 0.28rem;
+  height: 0.56rem;
+  border: solid #fff;
+  border-width: 0 0.12rem 0.12rem 0;
+  transform: rotate(42deg);
+}
+
+.check-field input:focus-visible {
+  border-color: rgba(255, 127, 153, 0.8);
+  box-shadow: 0 0 0 0.18rem rgba(255, 127, 153, 0.18);
 }
 
 .check-field span {
