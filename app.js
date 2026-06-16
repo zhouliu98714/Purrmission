@@ -152,6 +152,83 @@ const impulseNames = {
   5: "Dopamine sprint",
 };
 
+const moodLines = {
+  muted: [
+    "muted. the cat is judging silently",
+    "silent mode. the cat has withdrawn its purr",
+    "no purrs, only side-eye",
+  ],
+  purrOn: [
+    "purr on. the cat is pleased again",
+    "purrs restored. morale is improving",
+    "the cat has resumed soft supervision",
+    "audio tribute accepted",
+  ],
+  unnamedSave: [
+    "name the thing to save this judgment",
+    "the cat needs a name for the evidence file",
+    "unnamed temptations vanish from cat memory",
+  ],
+  unnamedFeedback: [
+    "name the thing before teaching the cat",
+    "the cat cannot learn from a mystery object",
+    "label the temptation first, then the cat will study it",
+  ],
+  approved: [
+    "approved, with supervision",
+    "the cat allows it, but keeps the receipt",
+    "soft approval. no victory lap",
+    "purrmission stamped, gently",
+  ],
+  judged: [
+    "judgment has been served",
+    "the cat has rendered an opinion",
+    "a verdict has landed on tiny paws",
+    "the council of one has spoken",
+  ],
+  budgetBreach: [
+    "budget breach detected",
+    "the cat saw the budget line move",
+    "financial paw alarm triggered",
+    "that number made the cat sit upright",
+  ],
+  regret: [
+    "the cat is taking notes",
+    "regret has entered the case file",
+    "the cat has opened a tiny audit",
+  ],
+  memory: [
+    "memory updated",
+    "the cat sharpened its future judgment",
+    "noted for next temptation",
+  ],
+  acceptedTerms: [
+    "the cat accepts your terms",
+    "counter-purrposal accepted",
+    "the cat grants a conditional nod",
+  ],
+  rejectedTerms: [
+    "counteroffer rejected",
+    "the cat is unmoved",
+    "terms declined with a slow blink",
+  ],
+  rebel: [
+    "the cat saw that",
+    "caught in 4k by the cat",
+    "the cat has entered witness mode",
+  ],
+  memoryWiped: [
+    "memory wiped, dignity restored",
+    "the slate is clean, the cat is suspicious",
+    "history cleared. the cat pretends not to remember",
+  ],
+};
+
+function catMood(type) {
+  const lines = moodLines[type] || moodLines.judged;
+  return lines[Math.floor(Math.random() * lines.length)];
+}
+
 function selectedCurrency() {
   return currencySelect?.value || "USD";
 }
@@ -436,7 +513,7 @@ function setMuted(nextMuted, { silent = false } = {}) {
 
   if (isMuted) {
     window.clearTimeout(purrTimer);
-    mood.textContent = "muted. the cat is judging silently";
+    mood.textContent = catMood("muted");
     if (!wasMuted && !silent) {
       calculator.classList.remove("eye-roll");
       requestAnimationFrame(() => {
@@ -450,7 +527,7 @@ function setMuted(nextMuted, { silent = false } = {}) {
   }
 
   if (!silent) {
-    mood.textContent = "purr on. the cat is pleased again";
+    mood.textContent = catMood("purrOn");
     calculator.classList.remove("purr-return", "eye-roll");
     soundToggle.classList.remove("is-purr-happy");
     requestAnimationFrame(() => {
@@ -604,7 +681,7 @@ function renderHistory() {
 function rememberDecision() {
   if (!currentDecision.hasNamedItem) {
     currentDecision.id = null;
-    mood.textContent = "name the thing to save this judgment";
+    mood.textContent = catMood("unnamedSave");
     return;
   }
 
@@ -626,7 +703,7 @@ function rememberDecision() {
 
 function updateCurrentFeedback(feedback) {
   if (!currentDecision.hasNamedItem) {
-    mood.textContent = "name the thing before teaching the cat";
+    mood.textContent = catMood("unnamedFeedback");
     return;
   }
 
@@ -643,7 +720,7 @@ function updateCurrentFeedback(feedback) {
   }
 
   saveHistory(history);
-  mood.textContent = feedback === "regretted" ? "the cat is taking notes" : "memory updated";
+  mood.textContent = feedback === "regretted" ? catMood("regret") : catMood("memory");
 }
 
 function calculateDecision({ remember = true, sound = true } = {}) {
@@ -720,7 +797,7 @@ function calculateDecision({ remember = true, sound = true } = {}) {
   verdict.textContent = result;
   reason.textContent = message;
   currentDecision.verdict = result;
-  mood.textContent = normalizedScore >= 72 && !priceContext.needsInspection ? "approved, with supervision" : "judgment has been served";
+  mood.textContent = normalizedScore >= 72 && !priceContext.needsInspection ? catMood("approved") : catMood("judged");
   rebelButton.hidden = normalizedScore >= 72 && !priceContext.needsInspection;
   negotiation.hidden = normalizedScore >= 72 && !priceContext.needsInspection;
   if (remember) rememberDecision();
@@ -731,7 +808,7 @@ function calculateDecision({ remember = true, sound = true } = {}) {
   bounceCat();
 
   if (hasBudget && budgetRatio > 1) {
-    mood.textContent = "budget breach detected";
+    mood.textContent = catMood("budgetBreach");
     window.setTimeout(angryScratch, 180);
   }
 }
@@ -769,7 +846,7 @@ function calculateNegotiation(event) {
     reason.textContent = `${currentDecision.item} is allowed if you wait ${waitDays} day${waitDays === 1 ? "" : "s"}, pay no more than ${money(targetPrice, currentDecision.currency)}, and use it ${promisedUsage}. The cat has made a legally fuzzy exception.`;
     currentDecision.verdict = "Conditional purrmission";
     currentDecision.score = adjustedScore;
-    mood.textContent = "the cat accepts your terms";
+    mood.textContent = catMood("acceptedTerms");
     negotiation.hidden = true;
     rebelButton.hidden = true;
     if (currentDecision.hasNamedItem) rememberDecision();
@@ -781,7 +858,7 @@ function calculateNegotiation(event) {
 
   verdict.textContent = "Still no purrmission";
   reason.textContent = `The counteroffer improved things, but not enough. The cat wants a lower price, more real use, or a cleaner tradeoff.`;
-  mood.textContent = "counteroffer rejected";
+  mood.textContent = catMood("rejectedTerms");
   currentDecision.verdict = "Still no purrmission";
   currentDecision.score = adjustedScore;
   rebelButton.hidden = false;
@@ -808,7 +885,7 @@ form.addEventListener("submit", (event) => {
 negotiation.addEventListener("submit", calculateNegotiation);
 
 rebelButton.addEventListener("click", () => {
-  mood.textContent = "the cat saw that";
+  mood.textContent = catMood("rebel");
   reason.textContent = "You purrchased it anyway. The cat is now emotionally unavailable.";
   updateCurrentFeedback("bought");
   playPurr({ mood: "grumpy" });
@@ -823,7 +900,7 @@ feedbackButtons.forEach((button) => {
 
 clearHistory.addEventListener("click", () => {
   saveHistory([]);
-  mood.textContent = "memory wiped, dignity restored";
+  mood.textContent = catMood("memoryWiped");
   playPurr();
 });
 
