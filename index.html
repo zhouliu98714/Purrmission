@@ -110,8 +110,16 @@
                 <input id="target-price" type="number" min="0" step="1" value="90" />
               </label>
               <label>
-                <span>Promised uses / month</span>
+                <span>Promised uses</span>
                 <input id="promised-uses" type="number" min="0" step="1" value="12" />
+              </label>
+              <label>
+                <span>Every</span>
+                <select id="use-period">
+                  <option value="day">Day</option>
+                  <option value="month" selected>Month</option>
+                  <option value="year">Year</option>
+                </select>
               </label>
               <label>
                 <span>Tradeoff</span>

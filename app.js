@@ -69,6 +69,16 @@ function readNumber(id) {
   return Math.max(0, Number(document.querySelector(`#${id}`).value) || 0);
 }
 
+function usesPerMonth(uses, period) {
+  if (period === "day") return uses * 30;
+  if (period === "year") return uses / 12;
+  return uses;
+}
+
+function usageLabel(uses, period) {
+  return `${uses} time${uses === 1 ? "" : "s"} per ${period}`;
+}
+
 function loadHistory() {
   try {
     return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
@@ -280,10 +290,12 @@ function calculateNegotiation(event) {
   const waitDays = readNumber("wait-days");
   const targetPrice = readNumber("target-price");
   const promisedUses = readNumber("promised-uses");
+  const usePeriod = document.querySelector("#use-period").value;
+  const promisedMonthlyUses = usesPerMonth(promisedUses, usePeriod);
   const tradeoff = Number(document.querySelector("#tradeoff").value);
   const priceDrop = currentDecision.price > 0 ? Math.max(0, currentDecision.price - targetPrice) : 0;
   const priceDropRatio = currentDecision.price > 0 ? priceDrop / currentDecision.price : 0;
-  const extraUses = Math.max(0, promisedUses - currentDecision.uses);
+  const extraUses = Math.max(0, promisedMonthlyUses - currentDecision.uses);
   const waitBonus = Math.min(18, waitDays * 3);
   const priceBonus = Math.min(22, Math.round(priceDropRatio * 42));
   const useBonus = Math.min(18, extraUses * 2);
@@ -293,6 +305,7 @@ function calculateNegotiation(event) {
   );
   const adjustedBudgetRatio = currentDecision.budget > 0 ? targetPrice / currentDecision.budget : 1.4;
   const adjustedPerUse = promisedUses > 0 ? targetPrice / promisedUses : targetPrice;
+  const promisedUsage = usageLabel(promisedUses, usePeriod);
 
   budgetBite.textContent = currentDecision.budget > 0 ? `${Math.round(adjustedBudgetRatio * 100)}%` : "No budget";
   costUse.textContent = `${money(adjustedPerUse)} / use`;
@@ -300,7 +313,7 @@ function calculateNegotiation(event) {
 
   if (adjustedScore >= 72 && adjustedBudgetRatio <= 1) {
     verdict.textContent = "Conditional yes";
-    reason.textContent = `${currentDecision.item} is allowed if you wait ${waitDays} day${waitDays === 1 ? "" : "s"}, pay no more than ${money(targetPrice)}, and actually use it. The cat has made a legally fuzzy exception.`;
+    reason.textContent = `${currentDecision.item} is allowed if you wait ${waitDays} day${waitDays === 1 ? "" : "s"}, pay no more than ${money(targetPrice)}, and use it ${promisedUsage}. The cat has made a legally fuzzy exception.`;
     currentDecision.verdict = "Conditional yes";
     currentDecision.score = adjustedScore;
     mood.textContent = "the cat accepts your terms";
