@@ -450,13 +450,17 @@ function setMuted(nextMuted, { silent = false } = {}) {
   }
 
   if (!silent) {
+    mood.textContent = "purr on. the cat is pleased again";
+    calculator.classList.remove("purr-return", "eye-roll");
     soundToggle.classList.remove("is-purr-happy");
     requestAnimationFrame(() => {
+      calculator.classList.add("purr-return");
       soundToggle.classList.add("is-purr-happy");
     });
     window.setTimeout(() => {
+      calculator.classList.remove("purr-return");
       soundToggle.classList.remove("is-purr-happy");
-    }, 850);
+    }, 950);
     playPurr();
     scheduleAmbientPurr();
   }
@@ -840,7 +844,7 @@ if (savedCurrency && Array.from(currencySelect.options).some((option) => option.
 
 updateImpulseLabel();
 updateCurrencyUI();
-setMuted(isMuted, { silent: true });
 calculateDecision({ remember: false, sound: false });
+setMuted(isMuted, { silent: true });
 renderProfile();
 renderHistory();
