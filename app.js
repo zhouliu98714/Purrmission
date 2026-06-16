@@ -443,9 +443,9 @@ function dealNote(priceContext) {
 }
 
 function returnableScoreShift(isReturnable, impulseValue, priceContext) {
-  if (priceContext.needsInspection) return isReturnable ? 2 : -4;
-  if (isReturnable) return 5;
-  return impulseValue >= 4 ? -5 : -3;
+  if (priceContext.needsInspection) return isReturnable ? 0.5 : -1;
+  if (isReturnable) return 0.75;
+  return impulseValue >= 4 ? -1.5 : 0;
 }
 
 function returnableNote(isReturnable) {
@@ -457,10 +457,10 @@ function returnableNote(isReturnable) {
         "The return policy helps your case, assuming future-you actually uses it if needed.",
       ]
     : [
-        "No return safety net is marked, so the cat treats the impulse as louder.",
-        "Without returnable evidence, the cat assumes checkout has fewer escape routes.",
-        "The cat does not see a return option, which makes the decision feel stickier.",
-        "No return checkbox, no safety blanket. The cat is adding a little caution.",
+        "No return safety net is marked, so the cat adds a small caution mark.",
+        "Without returnable evidence, the cat is only slightly less relaxed.",
+        "The cat does not see a return option, which makes the decision a bit stickier.",
+        "No return checkbox. The cat notes it, but does not overrule the whole case.",
       ];
 
   return randomLine(`returnable-${isReturnable ? "yes" : "no"}`, lines);
@@ -1106,16 +1106,15 @@ function calculateDecision({ remember = true, sound = true } = {}) {
   const usageNote = usageRealityNote(uses, useFrequency);
   const dealBonus = dealScoreBonus(isDealPrice, priceContext);
   const returnableShift = returnableScoreShift(isReturnable, impulseValue, priceContext);
-  const score = Math.round(
+  const score =
     68 +
-      useScore +
-      priceContext.scoreShift +
-      dealBonus +
-      returnableShift -
-      budgetPenalty -
-      impulsePenalty -
-      duplicatePenalty,
-  );
+    useScore +
+    priceContext.scoreShift +
+    dealBonus +
+    returnableShift -
+    budgetPenalty -
+    impulsePenalty -
+    duplicatePenalty;
   const normalizedScore = Math.max(0, Math.min(100, score));
   const perUse = expectedUses > 0 ? price / expectedUses : price;
 
