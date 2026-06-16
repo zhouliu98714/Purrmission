@@ -450,6 +450,13 @@ function setMuted(nextMuted, { silent = false } = {}) {
   }
 
   if (!silent) {
+    soundToggle.classList.remove("is-purr-happy");
+    requestAnimationFrame(() => {
+      soundToggle.classList.add("is-purr-happy");
+    });
+    window.setTimeout(() => {
+      soundToggle.classList.remove("is-purr-happy");
+    }, 850);
     playPurr();
     scheduleAmbientPurr();
   }
