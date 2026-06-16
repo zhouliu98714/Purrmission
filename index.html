@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Purrmission</title>
+    <link rel="stylesheet" href="styles.css?v=5" />
+  </head>
+  <body>
+    <main class="shell" aria-label="Purrmission purchase advisor">
+      <section class="calculator" aria-labelledby="app-title">
+        <div class="brand">
+          <div class="cat-mark" aria-hidden="true">
+            <span class="ear ear-left"></span>
+            <span class="ear ear-right"></span>
+            <span class="face">
+              <span class="eye eye-left"></span>
+              <span class="eye eye-right"></span>
+              <span class="nose"></span>
+              <span class="whisker whisker-left-1"></span>
+              <span class="whisker whisker-left-2"></span>
+              <span class="whisker whisker-right-1"></span>
+              <span class="whisker whisker-right-2"></span>
+            </span>
+          </div>
+          <div>
+            <h1 id="app-title">Purrmission</h1>
+            <p id="mood">ask the cat before you buy</p>
+          </div>
+        </div>
+
+        <form class="judge-form" id="judge-form">
+          <label class="field">
+            <span>Thing you want</span>
+            <input id="item" name="item" type="text" placeholder="Noise-canceling headphones" />
+          </label>
+
+          <div class="field-grid">
+            <label class="field">
+              <span>Price</span>
+              <input id="price" name="price" type="number" min="0" step="1" inputmode="decimal" value="120" />
+            </label>
+            <label class="field">
+              <span>Monthly fun budget</span>
+              <input id="budget" name="budget" type="number" min="0" step="1" inputmode="decimal" value="400" />
+            </label>
+          </div>
+
+          <div class="field-grid">
+            <label class="field">
+              <span>Uses per month</span>
+              <input id="uses" name="uses" type="number" min="0" step="1" inputmode="numeric" value="8" />
+            </label>
+            <label class="field">
+              <span>Already own something similar?</span>
+              <select id="duplicate" name="duplicate">
+                <option value="0">No</option>
+                <option value="1">Kind of</option>
+                <option value="2">Yes</option>
+              </select>
+            </label>
+          </div>
+
+          <label class="range-field">
+            <span>Impulse level</span>
+            <strong id="impulse-label">Medium</strong>
+            <input id="impulse" name="impulse" type="range" min="1" max="5" value="3" />
+          </label>
+
+          <button class="judge-button" type="submit">Ask the cat</button>
+        </form>
+
+        <section class="result" id="result" aria-live="polite">
+          <div class="verdict" id="verdict">Wait 24 hours</div>
+          <p id="reason">The cat is ready to inspect your next tempting purchase.</p>
+          <dl class="metrics">
+            <div>
+              <dt>Budget bite</dt>
+              <dd id="budget-bite">30%</dd>
+            </div>
+            <div>
+              <dt>Cost per use</dt>
+              <dd id="cost-use">$15.00</dd>
+            </div>
+            <div>
+              <dt>Purrmission score</dt>
+              <dd id="cat-score">62</dd>
+            </div>
+          </dl>
+          <form class="negotiation" id="negotiation" hidden>
+            <div class="negotiation-head">
+              <strong>Negotiate with the cat</strong>
+              <span>Offer better terms.</span>
+            </div>
+            <div class="negotiation-grid">
+              <label>
+                <span>Wait days</span>
+                <input id="wait-days" type="number" min="0" max="30" step="1" value="3" />
+              </label>
+              <label>
+                <span>Target price</span>
+                <input id="target-price" type="number" min="0" step="1" value="90" />
+              </label>
+              <label>
+                <span>Promised uses / month</span>
+                <input id="promised-uses" type="number" min="0" step="1" value="12" />
+              </label>
+              <label>
+                <span>Tradeoff</span>
+                <select id="tradeoff">
+                  <option value="0">No tradeoff</option>
+                  <option value="8">Cancel one subscription</option>
+                  <option value="10" selected>Sell or return one thing</option>
+                  <option value="14">Use gift card / store credit</option>
+                </select>
+              </label>
+            </div>
+            <button class="negotiate-button" type="submit">Submit counteroffer</button>
+          </form>
+          <button class="rebel-button" id="rebel-button" type="button" hidden>I bought it anyway</button>
+        </section>
+      </section>
+    </main>
+    <div class="scratch-attack" id="scratch-attack" aria-hidden="true">
+      <div class="attack-cat">
+        <span class="attack-ear attack-ear-left"></span>
+        <span class="attack-ear attack-ear-right"></span>
+        <span class="attack-face">
+          <span class="attack-eye attack-eye-left"></span>
+          <span class="attack-eye attack-eye-right"></span>
+          <span class="attack-nose"></span>
+          <span class="attack-mouth"></span>
+        </span>
+      </div>
+      <span class="scratch scratch-one"></span>
+      <span class="scratch scratch-two"></span>
+      <span class="scratch scratch-three"></span>
+      <p>NOPE</p>
+    </div>
+    <script src="app.js?v=6"></script>
+  </body>
+</html>
