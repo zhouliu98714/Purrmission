@@ -31,7 +31,6 @@ const SOUND_KEY = "purrmission-muted";
 const CURRENCY_KEY = "purrmission-currency";
 const REAL_PURR_SRC = "assets/cat-purr.mp3";
 
-let audioContext;
 let purrAudio;
 let purrTimer;
 let isMuted = localStorage.getItem(SOUND_KEY) === "true";
@@ -344,91 +343,6 @@ function renderContextCard(priceContext) {
     : "";
 }
 
-function ensureAudio() {
-  if (isMuted) return null;
-  const AudioEngine = window.AudioContext || window.webkitAudioContext;
-  if (!AudioEngine) return null;
-  if (!audioContext) {
-    audioContext = new AudioEngine();
-  }
-  if (audioContext.state === "suspended") {
-    audioContext.resume();
-  }
-  return audioContext;
-}
-
-function createPurrWavBuffer({ mood = "soft" } = {}) {
-  const sampleRate = 16000;
-  const duration = 1.15 + Math.random() * 0.45;
-  const sampleCount = Math.floor(sampleRate * duration);
-  const bytesPerSample = 2;
-  const dataSize = sampleCount * bytesPerSample;
-  const buffer = new ArrayBuffer(44 + dataSize);
-  const view = new DataView(buffer);
-  const chest = mood === "grumpy" ? 44 + Math.random() * 8 : 34 + Math.random() * 10;
-  const audible = mood === "grumpy" ? 132 + Math.random() * 22 : 118 + Math.random() * 26;
-  const pulseRate = 18 + Math.random() * 8;
-  const breathRate = 1.6 + Math.random() * 0.8;
-  const volume = mood === "grumpy" ? 0.32 : 0.28;
-  let noiseHold = 0;
-
-  function writeString(offset, value) {
-    for (let i = 0; i < value.length; i += 1) {
-      view.setUint8(offset + i, value.charCodeAt(i));
-    }
-  }
-
-  writeString(0, "RIFF");
-  view.setUint32(4, 36 + dataSize, true);
-  writeString(8, "WAVE");
-  writeString(12, "fmt ");
-  view.setUint32(16, 16, true);
-  view.setUint16(20, 1, true);
-  view.setUint16(22, 1, true);
-  view.setUint32(24, sampleRate, true);
-  view.setUint32(28, sampleRate * bytesPerSample, true);
-  view.setUint16(32, bytesPerSample, true);
-  view.setUint16(34, 16, true);
-  writeString(36, "data");
-  view.setUint32(40, dataSize, true);
-
-  for (let index = 0; index < sampleCount; index += 1) {
-    const time = index / sampleRate;
-    const envelope = Math.sin(Math.PI * (index / sampleCount));
-    const pulse = 0.42 + 0.58 * Math.max(0, Math.sin(2 * Math.PI * pulseRate * time));
-    const breath = 0.58 + 0.42 * Math.sin(2 * Math.PI * breathRate * time + 0.8);
-    if (index % 7 === 0) {
-      noiseHold = Math.random() * 2 - 1;
-    }
-    const wave =
-      Math.sin(2 * Math.PI * chest * time) * 0.62 +
-      Math.sin(2 * Math.PI * chest * 2.03 * time) * 0.2 +
-      Math.sin(2 * Math.PI * audible * time) * 0.16 +
-      Math.sin(2 * Math.PI * audible * 1.52 * time) * 0.07 +
-      noiseHold * 0.05;
-    const sample = Math.max(-1, Math.min(1, wave * pulse * breath * envelope * volume));
-    view.setInt16(44 + index * 2, sample * 32767, true);
-  }
-
-  return buffer;
-}
-
-function playGeneratedPurr(options) {
-  if (isMuted || typeof Blob === "undefined" || typeof URL === "undefined") return false;
-
-  try {
-    const audio = document.createElement("audio");
-    const blobUrl = URL.createObjectURL(new Blob([createPurrWavBuffer(options)], { type: "audio/wav" }));
-    audio.src = blobUrl;
-    audio.volume = 0.9;
-    audio.addEventListener("ended", () => URL.revokeObjectURL(blobUrl), { once: true });
-    audio.play().catch(() => URL.revokeObjectURL(blobUrl));
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 function getPurrAudio() {
   if (typeof Audio === "undefined") return null;
 
@@ -453,13 +367,12 @@ function playRecordedPurr({ mood = "soft" } = {}) {
     const playAttempt = audio.play();
     if (playAttempt?.catch) {
       playAttempt.catch(() => {
-        purrAudio = null;
-        playGeneratedPurr({ mood });
+        stopPurrAudio();
       });
     }
     return true;
   } catch {
-    purrAudio = null;
+    stopPurrAudio();
     return false;
   }
 }
@@ -472,55 +385,20 @@ function primePurrAudio() {
   }
 }
 
-function playImmediatePurr(options = {}) {
-  ensureAudio();
-  primePurrAudio();
-  const played = playRecordedPurr(options);
-  window.setTimeout(() => {
-    if (!played && !isMuted) {
-      playGeneratedPurr(options);
-    }
-  }, 120);
-  return played;
+function stopPurrAudio() {
+  if (!purrAudio) return;
+
+  try {
+    purrAudio.pause();
+    purrAudio.currentTime = 0;
+  } catch {
+    purrAudio = null;
+  }
 }
 
-function playSynthPurr({ mood = "soft" } = {}) {
-  const context = ensureAudio();
-  if (!context) return false;
-  const now = context.currentTime;
-  const duration = 0.35 + Math.random() * 0.55;
-  const base = mood === "grumpy" ? 42 : 55 + Math.random() * 20;
-  const carrier = context.createOscillator();
-  const wobble = context.createOscillator();
-  const carrierGain = context.createGain();
-  const wobbleGain = context.createGain();
-  const filter = context.createBiquadFilter();
-  const output = context.createGain();
-
-  carrier.type = "sawtooth";
-  carrier.frequency.setValueAtTime(base, now);
-  carrier.frequency.linearRampToValueAtTime(base + (Math.random() * 10 - 5), now + duration);
-  wobble.type = "sine";
-  wobble.frequency.setValueAtTime(9 + Math.random() * 9, now);
-  wobbleGain.gain.setValueAtTime(5 + Math.random() * 7, now);
-  filter.type = "lowpass";
-  filter.frequency.setValueAtTime(mood === "grumpy" ? 180 : 240 + Math.random() * 120, now);
-  output.gain.setValueAtTime(0.0001, now);
-  output.gain.exponentialRampToValueAtTime(mood === "grumpy" ? 0.035 : 0.024, now + 0.05);
-  output.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-
-  wobble.connect(wobbleGain);
-  wobbleGain.connect(carrier.frequency);
-  carrier.connect(carrierGain);
-  carrierGain.connect(filter);
-  filter.connect(output);
-  output.connect(context.destination);
-
-  carrier.start(now);
-  wobble.start(now);
-  carrier.stop(now + duration + 0.04);
-  wobble.stop(now + duration + 0.04);
-  return true;
+function playImmediatePurr(options = {}) {
+  primePurrAudio();
+  return playRecordedPurr(options);
 }
 
 function playPurr(options = {}) {
@@ -529,10 +407,7 @@ function playPurr(options = {}) {
     playImmediatePurr(options);
     return;
   }
-  const played = playRecordedPurr(options);
-  if (played) return;
-  const generated = playGeneratedPurr(options);
-  if (!generated) playSynthPurr(options);
+  playRecordedPurr(options);
 }
 
 function scheduleAmbientPurr() {
@@ -556,6 +431,7 @@ function setMuted(nextMuted, { silent = false } = {}) {
 
   if (isMuted) {
     window.clearTimeout(purrTimer);
+    stopPurrAudio();
     mood.textContent = catMood("muted");
     if (!wasMuted && !silent) {
       calculator.classList.remove("eye-roll");
