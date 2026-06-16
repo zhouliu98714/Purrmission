@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Purrmission</title>
-    <link rel="stylesheet" href="styles.css?v=8" />
+    <link rel="stylesheet" href="styles.css?v=9" />
   </head>
   <body>
     <main class="shell" aria-label="Purrmission purchase advisor">
@@ -28,7 +28,19 @@
             <p id="mood">ask the cat before you buy</p>
           </div>
           <button class="sound-toggle" id="sound-toggle" type="button" aria-pressed="false" aria-label="Mute purr sounds">
-            purr on
+            <span class="sound-cat-icon" aria-hidden="true">
+              <span class="sound-cat-ear sound-cat-ear-left"></span>
+              <span class="sound-cat-ear sound-cat-ear-right"></span>
+              <span class="sound-cat-face">
+                <span class="sound-cat-eye sound-cat-eye-left"></span>
+                <span class="sound-cat-eye sound-cat-eye-right"></span>
+                <span class="sound-cat-mouth"></span>
+              </span>
+              <span class="sound-wave sound-wave-one"></span>
+              <span class="sound-wave sound-wave-two"></span>
+              <span class="sound-muted-line"></span>
+            </span>
+            <span id="sound-toggle-label">purr on</span>
           </button>
         </div>
 
@@ -243,6 +255,6 @@
       <span class="scratch scratch-three"></span>
       <p>NOPE</p>
     </div>
-    <script src="app.js?v=14"></script>
+    <script src="app.js?v=15"></script>
   </body>
 </html>

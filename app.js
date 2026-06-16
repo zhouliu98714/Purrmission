@@ -22,6 +22,7 @@ const historyList = document.querySelector("#history-list");
 const clearHistory = document.querySelector("#clear-history");
 const feedbackButtons = document.querySelectorAll("[data-feedback]");
 const soundToggle = document.querySelector("#sound-toggle");
+const soundToggleLabel = document.querySelector("#sound-toggle-label");
 const currencySelect = document.querySelector("#currency");
 const currencyPrefixes = document.querySelectorAll("[data-currency-prefix]");
 
@@ -430,7 +431,7 @@ function setMuted(nextMuted, { silent = false } = {}) {
   localStorage.setItem(SOUND_KEY, String(isMuted));
   soundToggle.setAttribute("aria-pressed", String(isMuted));
   soundToggle.setAttribute("aria-label", isMuted ? "Turn purr sounds on" : "Mute purr sounds");
-  soundToggle.textContent = isMuted ? "purr off" : "purr on";
+  soundToggleLabel.textContent = isMuted ? "purr off" : "purr on";
   calculator.classList.toggle("is-muted", isMuted);
 
   if (isMuted) {

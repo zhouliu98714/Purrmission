@@ -94,8 +94,12 @@ body {
 }
 
 .sound-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.42rem;
   margin-left: auto;
-  min-width: 5.4rem;
+  min-width: 6.65rem;
   min-height: 2.35rem;
   border: 1px solid rgba(48, 40, 58, 0.1);
   border-radius: 99rem;
@@ -109,6 +113,119 @@ body {
 .sound-toggle[aria-pressed="true"] {
   color: var(--muted);
   background: rgba(255, 255, 255, 0.58);
+}
+
+.sound-cat-icon {
+  position: relative;
+  width: 1.45rem;
+  height: 1.25rem;
+  flex: 0 0 1.45rem;
+}
+
+.sound-cat-face,
+.sound-cat-ear,
+.sound-cat-eye,
+.sound-cat-mouth,
+.sound-wave,
+.sound-muted-line {
+  position: absolute;
+  display: block;
+}
+
+.sound-cat-face {
+  left: 0;
+  bottom: 0;
+  width: 1rem;
+  height: 0.86rem;
+  border: 0.12rem solid currentColor;
+  border-radius: 48% 48% 42% 42%;
+}
+
+.sound-cat-ear {
+  top: 0.08rem;
+  width: 0.44rem;
+  height: 0.44rem;
+  border: 0.12rem solid currentColor;
+  border-right: 0;
+  border-bottom: 0;
+  border-radius: 0.08rem 0.22rem 0 0.22rem;
+  background: #fff;
+}
+
+.sound-cat-ear-left {
+  left: 0.03rem;
+  transform: rotate(34deg);
+}
+
+.sound-cat-ear-right {
+  left: 0.51rem;
+  transform: rotate(56deg);
+}
+
+.sound-cat-eye {
+  top: 0.28rem;
+  width: 0.1rem;
+  height: 0.16rem;
+  border-radius: 99rem;
+  background: currentColor;
+}
+
+.sound-cat-eye-left {
+  left: 0.25rem;
+}
+
+.sound-cat-eye-right {
+  left: 0.58rem;
+}
+
+.sound-cat-mouth {
+  left: 0.38rem;
+  bottom: 0.16rem;
+  width: 0.2rem;
+  height: 0.1rem;
+  border-bottom: 0.08rem solid currentColor;
+  border-radius: 0 0 99rem 99rem;
+}
+
+.sound-wave {
+  right: 0.04rem;
+  border: 0.12rem solid currentColor;
+  border-left: 0;
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+  border-radius: 0 99rem 99rem 0;
+}
+
+.sound-wave-one {
+  top: 0.4rem;
+  width: 0.28rem;
+  height: 0.42rem;
+}
+
+.sound-wave-two {
+  top: 0.25rem;
+  width: 0.52rem;
+  height: 0.72rem;
+  opacity: 0.55;
+}
+
+.sound-muted-line {
+  right: 0.12rem;
+  top: 0.1rem;
+  width: 0.12rem;
+  height: 1.12rem;
+  border-radius: 99rem;
+  background: currentColor;
+  opacity: 0;
+  transform: rotate(-38deg);
+}
+
+.sound-toggle[aria-pressed="true"] .sound-wave {
+  opacity: 0;
+}
+
+.sound-toggle[aria-pressed="true"] .sound-muted-line {
+  opacity: 1;
 }
 
 .profile-card {
