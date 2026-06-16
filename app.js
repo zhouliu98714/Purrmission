@@ -1227,12 +1227,14 @@ function renderProfile() {
 function renderHistory() {
   const history = loadHistory();
   historyList.innerHTML = "";
+  clearHistory.disabled = history.length === 0;
+  clearHistory.setAttribute("aria-disabled", String(history.length === 0));
 
   if (history.length === 0) {
     const empty = document.createElement("li");
     const label = document.createElement("strong");
     const badge = document.createElement("span");
-    label.textContent = "No judgments yet";
+    label.textContent = "No saved judgments yet";
     badge.className = "history-badge";
     badge.textContent = "new";
     empty.append(label, badge);

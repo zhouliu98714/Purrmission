@@ -1359,6 +1359,15 @@ input[type="range"] {
   background: #fff2f5;
 }
 
+.history-head button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.history-head button:disabled:hover {
+  background: #ffffff;
+}
+
 .history-head {
   display: flex;
   justify-content: space-between;
