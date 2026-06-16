@@ -117,9 +117,9 @@ body {
 
 .sound-cat-icon {
   position: relative;
-  width: 1.45rem;
-  height: 1.25rem;
-  flex: 0 0 1.45rem;
+  width: 1.9rem;
+  height: 1.28rem;
+  flex: 0 0 1.9rem;
 }
 
 .sound-cat-face,
@@ -134,38 +134,39 @@ body {
 
 .sound-cat-face {
   left: 0;
-  bottom: 0;
-  width: 1rem;
-  height: 0.86rem;
+  bottom: 0.02rem;
+  width: 1.04rem;
+  height: 0.88rem;
   border: 0.12rem solid currentColor;
   border-radius: 48% 48% 42% 42%;
+  background: #fff;
 }
 
 .sound-cat-ear {
-  top: 0.08rem;
-  width: 0.44rem;
-  height: 0.44rem;
+  top: 0.03rem;
+  width: 0.46rem;
+  height: 0.46rem;
   border: 0.12rem solid currentColor;
-  border-right: 0;
-  border-bottom: 0;
-  border-radius: 0.08rem 0.22rem 0 0.22rem;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  border-radius: 0.1rem 0.2rem 0.08rem 0.2rem;
   background: #fff;
 }
 
 .sound-cat-ear-left {
-  left: 0.03rem;
-  transform: rotate(34deg);
+  left: 0.05rem;
+  transform: rotate(28deg);
 }
 
 .sound-cat-ear-right {
-  left: 0.51rem;
-  transform: rotate(56deg);
+  left: 0.53rem;
+  transform: rotate(62deg);
 }
 
 .sound-cat-eye {
-  top: 0.28rem;
-  width: 0.1rem;
-  height: 0.16rem;
+  top: 0.32rem;
+  width: 0.11rem;
+  height: 0.11rem;
   border-radius: 99rem;
   background: currentColor;
 }
@@ -179,17 +180,16 @@ body {
 }
 
 .sound-cat-mouth {
-  left: 0.38rem;
-  bottom: 0.16rem;
-  width: 0.2rem;
-  height: 0.1rem;
+  left: 0.37rem;
+  bottom: 0.18rem;
+  width: 0.22rem;
+  height: 0.13rem;
   border-bottom: 0.08rem solid currentColor;
   border-radius: 0 0 99rem 99rem;
 }
 
 .sound-wave {
-  right: 0.04rem;
-  border: 0.12rem solid currentColor;
+  border: 0.13rem solid currentColor;
   border-left: 0;
   border-top-color: transparent;
   border-bottom-color: transparent;
@@ -197,31 +197,45 @@ body {
 }
 
 .sound-wave-one {
-  top: 0.4rem;
-  width: 0.28rem;
-  height: 0.42rem;
+  right: 0.55rem;
+  top: 0.45rem;
+  width: 0.22rem;
+  height: 0.32rem;
 }
 
 .sound-wave-two {
-  top: 0.25rem;
-  width: 0.52rem;
-  height: 0.72rem;
-  opacity: 0.55;
+  right: 0.29rem;
+  top: 0.34rem;
+  width: 0.42rem;
+  height: 0.56rem;
+  opacity: 0.72;
+}
+
+.sound-wave-three {
+  right: 0.01rem;
+  top: 0.2rem;
+  width: 0.66rem;
+  height: 0.84rem;
+  opacity: 0.48;
 }
 
 .sound-muted-line {
-  right: 0.12rem;
-  top: 0.1rem;
-  width: 0.12rem;
-  height: 1.12rem;
+  right: 0.22rem;
+  top: 0.12rem;
+  width: 0.13rem;
+  height: 1.04rem;
   border-radius: 99rem;
   background: currentColor;
   opacity: 0;
-  transform: rotate(-38deg);
+  transform: rotate(-45deg);
+}
+
+.sound-muted-line-two {
+  transform: rotate(45deg);
 }
 
 .sound-toggle[aria-pressed="true"] .sound-wave {
-  opacity: 0;
+  opacity: 0.2;
 }
 
 .sound-toggle[aria-pressed="true"] .sound-muted-line {
