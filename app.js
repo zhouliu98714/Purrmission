@@ -20,6 +20,7 @@ const soundToggle = document.querySelector("#sound-toggle");
 
 const STORAGE_KEY = "purrmission-history";
 const SOUND_KEY = "purrmission-muted";
+const REAL_PURR_SRC = "assets/cat-purr.mp3";
 
 let audioContext;
 let purrTimer;
@@ -139,6 +140,23 @@ function playGeneratedPurr(options) {
   }
 }
 
+function playRecordedPurr({ mood = "soft" } = {}) {
+  if (isMuted || typeof document === "undefined") return false;
+
+  try {
+    const audio = document.createElement("audio");
+    audio.src = REAL_PURR_SRC;
+    audio.volume = mood === "grumpy" ? 0.5 + Math.random() * 0.12 : 0.38 + Math.random() * 0.12;
+    audio.playbackRate = 0.92 + Math.random() * 0.16;
+    audio.play().catch(() => {
+      playGeneratedPurr({ mood });
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function playSynthPurr({ mood = "soft" } = {}) {
   const context = ensureAudio();
   if (!context) return false;
@@ -180,8 +198,10 @@ function playSynthPurr({ mood = "soft" } = {}) {
 
 function playPurr(options = {}) {
   if (isMuted) return;
-  const played = playGeneratedPurr(options);
-  if (!played) playSynthPurr(options);
+  const played = playRecordedPurr(options);
+  if (played) return;
+  const generated = playGeneratedPurr(options);
+  if (!generated) playSynthPurr(options);
 }
 
 function scheduleAmbientPurr() {
