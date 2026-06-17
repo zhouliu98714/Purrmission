@@ -687,6 +687,12 @@ function catMood(type) {
   return toneAdjustedLine(type, randomLine(type, lines));
 }
 
+function setVisualCatState(state) {
+  document.body.dataset.catState = state;
+  calculator.dataset.catState = state;
+  catRoomStage.dataset.catState = state;
+}
+
 function randomLine(type, lines) {
   if (lines.length <= 1) return lines[0] || "";
 
@@ -1398,6 +1404,7 @@ function bounceCat() {
 }
 
 function angryScratch() {
+  setVisualCatState("angry");
   scratchAttack.classList.remove("is-active");
   requestAnimationFrame(() => {
     scratchAttack.classList.add("is-active");
@@ -1408,12 +1415,14 @@ function angryScratch() {
 }
 
 function happyVictoryRun() {
+  setVisualCatState("zoomies");
   happyRun.classList.remove("is-active");
   requestAnimationFrame(() => {
     happyRun.classList.add("is-active");
   });
   window.setTimeout(() => {
     happyRun.classList.remove("is-active");
+    setVisualCatState(careTone() === "sharp" ? "stressed" : "happy_purring");
   }, 1600);
 }
 
@@ -1508,6 +1517,9 @@ function renderCatCare(state = loadCareState()) {
   careTrustBar.style.width = `${state.trust}%`;
   careCozyBar.style.width = `${state.cozy}%`;
   careStressBar.style.width = `${state.stress}%`;
+  if (careTone(state) === "sharp") {
+    setVisualCatState("stressed");
+  }
   renderCatRoom(state);
 }
 
@@ -1661,6 +1673,7 @@ function startPetting(event) {
   setPetTargetFromEvent(event);
   clearPeekClasses();
   const pose = choosePetPose();
+  setVisualCatState("happy_purring");
   catRoomStage.classList.add("is-petting", "is-curious");
   roomCatLine.textContent = petPoseLine(pose, tone);
   playPurr({ immediate: true, mood: careTone(state) === "sharp" ? "soft" : "happy" });
@@ -1678,6 +1691,7 @@ function stopPetting() {
     );
     return;
   }
+  setVisualCatState(careTone() === "sharp" ? "stressed" : "neutral");
   renderCatRoom();
 }
 
@@ -1874,6 +1888,9 @@ function updateCurrentFeedback(feedback) {
     if (careChange) {
       updateCatCare(careChange.delta, careChange.note);
     }
+    if (feedback === "bought" && careChange?.delta?.stress > 0) setVisualCatState("angry");
+    if (feedback === "skipped" || feedback === "used") setVisualCatState("happy_purring");
+    if (feedback === "regretted") setVisualCatState("stressed");
   }
 
   saveHistory(history);
@@ -1951,16 +1968,20 @@ function calculateDecision({ remember = true, sound = true } = {}) {
   if (needsInspection) {
     result = "Needs serious inspection";
     message = decisionReason("inspection", { item, price, currency });
+    setVisualCatState(careTone() === "sharp" ? "stressed" : "skeptical");
   } else if (normalizedScore >= 72) {
     result = "Purrmission granted";
     message = decisionReason("approved", { item, price, currency });
+    setVisualCatState("happy_purring");
   } else if (normalizedScore >= 50) {
     result = "Purrhaps wait";
     message = decisionReason("wait", { item, price, currency });
+    setVisualCatState("skeptical");
   } else {
     result = "No purrmission";
     message = decisionReason("no", { item, price, currency });
     calculator.classList.add("skeptical");
+    setVisualCatState(careTone() === "sharp" ? "stressed" : "skeptical");
   }
 
   if (duplicate > 0 && normalizedScore < 78) {
@@ -2001,6 +2022,7 @@ function calculateDecision({ remember = true, sound = true } = {}) {
 
   if (hasBudget && budgetRatio > 1) {
     mood.textContent = catMood("budgetBreach");
+    setVisualCatState("angry");
     window.setTimeout(angryScratch, 180);
   }
 }
@@ -2049,6 +2071,7 @@ function calculateNegotiation(event) {
       { trust: 3, cozy: 2, stress: -3, treats: 1 },
       "Counter-purrposal accepted. The cat likes negotiated restraint.",
     );
+    setVisualCatState("zoomies");
     negotiation.hidden = true;
     rebelButton.hidden = true;
     listenButton.hidden = true;

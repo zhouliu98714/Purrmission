@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "states": {
+    "neutral": {
+      "asset": "cat-neutral.png",
+      "fallback": ".cat-mark, .room-cat",
+      "uses": ["initial", "idle"]
+    },
+    "happy_purring": {
+      "asset": "cat-happy-purring.png",
+      "fallback": ".calculator.happy .cat-mark, .room-cat",
+      "uses": ["approved", "petting", "used", "skipped"]
+    },
+    "skeptical": {
+      "asset": "cat-skeptical.png",
+      "fallback": ".calculator.skeptical .cat-mark",
+      "uses": ["wait", "missing_info", "no_purrmission"]
+    },
+    "angry": {
+      "asset": "cat-angry.png",
+      "fallback": ".attack-cat",
+      "uses": ["bought_against_advice", "budget_breach"]
+    },
+    "stressed": {
+      "asset": "cat-stressed.png",
+      "fallback": ".room-cat",
+      "uses": ["low_trust", "high_stress", "regretted"]
+    },
+    "zoomies": {
+      "asset": "cat-zoomies.png",
+      "fallback": ".happy-cat",
+      "uses": ["listened", "accepted_counter_purrposal"]
+    }
+  },
+  "interactions": {
+    "boop_head": {
+      "asset": "cat-happy-purring.png",
+      "variant": "head_reach"
+    },
+    "rub_body": {
+      "asset": "cat-happy-purring.png",
+      "variant": "body_rub"
+    },
+    "tail_brush": {
+      "asset": "cat-happy-purring.png",
+      "variant": "tail_reach"
+    }
+  }
+}
