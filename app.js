@@ -2186,10 +2186,19 @@ window.addEventListener("resize", () => {
 });
 
 appTabs.forEach((tab) => {
-  tab.addEventListener("click", () => {
+  const activateTab = (event) => {
+    event.preventDefault();
     switchView(tab.dataset.viewTarget);
-  });
+  };
+  tab.addEventListener("pointerdown", activateTab);
+  tab.addEventListener("click", activateTab);
 });
+
+function releasePetPointer(event) {
+  if (event?.pointerId !== undefined && petZone.hasPointerCapture?.(event.pointerId)) {
+    petZone.releasePointerCapture(event.pointerId);
+  }
+}
 
 petZone.addEventListener("pointerdown", (event) => {
   event.preventDefault();
@@ -2200,12 +2209,23 @@ petZone.addEventListener("pointerdown", (event) => {
 
 petZone.addEventListener("pointerup", (event) => {
   event.preventDefault();
+  releasePetPointer(event);
   stopPetting();
 });
 
-petZone.addEventListener("pointercancel", stopPetting);
-petZone.addEventListener("pointerleave", () => {
+petZone.addEventListener("pointercancel", (event) => {
+  releasePetPointer(event);
+  stopPetting();
+});
+petZone.addEventListener("pointerleave", (event) => {
+  releasePetPointer(event);
   if (catRoomStage.classList.contains("is-petting")) stopPetting();
+});
+document.addEventListener("pointerup", (event) => {
+  if (catRoomStage.classList.contains("is-petting")) {
+    releasePetPointer(event);
+    stopPetting();
+  }
 });
 petZone.addEventListener("click", (event) => {
   if (Date.now() - lastPetPointerAt < 350) return;
