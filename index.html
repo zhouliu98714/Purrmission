@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Purrmission</title>
-    <link rel="stylesheet" href="styles.css?v=25" />
+    <link rel="stylesheet" href="styles.css?v=26" />
   </head>
   <body>
     <main class="shell" aria-label="Purrmission purchase advisor">
@@ -84,6 +84,12 @@
           </div>
         </section>
 
+        <nav class="app-tabs" aria-label="Purrmission views">
+          <button class="app-tab is-active" type="button" data-view-target="advisor-view" aria-pressed="true">Advisor</button>
+          <button class="app-tab" type="button" data-view-target="cat-room-view" aria-pressed="false">Cat Room</button>
+        </nav>
+
+        <div class="app-view is-active" id="advisor-view">
         <form class="judge-form" id="judge-form">
           <label class="field">
             <span class="field-label">
@@ -370,6 +376,35 @@
           </div>
           <ul id="history-list"></ul>
         </section>
+        </div>
+
+        <section class="app-view cat-room-view" id="cat-room-view" aria-label="Cat interaction room">
+          <div class="cat-room-head">
+            <div>
+              <span class="profile-kicker">Cat Room</span>
+              <strong id="room-cat-title">Your cat is watching the cart</strong>
+            </div>
+            <span id="room-cat-badge">steady paws</span>
+          </div>
+          <div class="cat-room-stage" id="cat-room-stage">
+            <div class="room-cat" id="room-cat" aria-hidden="true">
+              <span class="room-tail"></span>
+              <span class="room-body"></span>
+              <span class="room-ear room-ear-left"></span>
+              <span class="room-ear room-ear-right"></span>
+              <span class="room-face">
+                <span class="room-eye room-eye-left"></span>
+                <span class="room-eye room-eye-right"></span>
+                <span class="room-nose"></span>
+                <span class="room-mouth"></span>
+              </span>
+            </div>
+            <button class="pet-zone" id="pet-zone" type="button" aria-label="Hold here to pet the cat">
+              <span>Hold here</span>
+            </button>
+          </div>
+          <p id="room-cat-line">Hold the pet spot and the cat may come over if the trust ledger allows it.</p>
+        </section>
       </section>
     </main>
     <div class="scratch-attack" id="scratch-attack" aria-hidden="true">
@@ -409,6 +444,6 @@
       </div>
       <p>GOOD HUMAN</p>
     </div>
-    <script src="app.js?v=40"></script>
+    <script src="app.js?v=42"></script>
   </body>
 </html>

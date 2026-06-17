@@ -38,6 +38,13 @@ const careStressValue = document.querySelector("#care-stress-value");
 const careTrustBar = document.querySelector("#care-trust-bar");
 const careCozyBar = document.querySelector("#care-cozy-bar");
 const careStressBar = document.querySelector("#care-stress-bar");
+const appTabs = document.querySelectorAll("[data-view-target]");
+const appViews = document.querySelectorAll(".app-view");
+const catRoomStage = document.querySelector("#cat-room-stage");
+const petZone = document.querySelector("#pet-zone");
+const roomCatTitle = document.querySelector("#room-cat-title");
+const roomCatBadge = document.querySelector("#room-cat-badge");
+const roomCatLine = document.querySelector("#room-cat-line");
 const historyList = document.querySelector("#history-list");
 const clearHistory = document.querySelector("#clear-history");
 const feedbackButtons = document.querySelectorAll("[data-feedback]");
@@ -677,7 +684,7 @@ const recentLinesByType = {};
 
 function catMood(type) {
   const lines = moodLines[type] || moodLines.judged;
-  return randomLine(type, lines);
+  return toneAdjustedLine(type, randomLine(type, lines));
 }
 
 function randomLine(type, lines) {
@@ -690,6 +697,40 @@ function randomLine(type, lines) {
   next = pool[Math.floor(Math.random() * pool.length)];
   recentLinesByType[type] = [next, ...recentLines].slice(0, Math.min(4, lines.length - 1));
   return next;
+}
+
+function careTone(state = loadCareState()) {
+  if (state.stress >= 65 || state.trust <= 34) return "sharp";
+  if (state.trust >= 74 && state.cozy >= 62 && state.stress <= 40) return "sweet";
+  return "neutral";
+}
+
+function toneAdjustedLine(type, baseLine) {
+  const tone = careTone();
+  const sweetTypes = ["approved", "listened", "acceptedTerms", "memory", "judged"];
+  const sharpTypes = ["judged", "rebel", "rejectedTerms", "budgetBreach", "unnamedSave", "unnamedFeedback"];
+  const sweetLines = [
+    `${baseLine} tiny approving purr included.`,
+    `${baseLine} the cat is being very gentle because you have earned it.`,
+    `${baseLine} soft paws, firm standards.`,
+    `${baseLine} the cat says this with affectionate supervision.`,
+  ];
+  const sharpLines = [
+    `${baseLine} the cat is not in the mood to decorate this.`,
+    `${baseLine} trust is currently expensive.`,
+    `${baseLine} the cat has sharpened the spreadsheet.`,
+    `${baseLine} this is the polite version, somehow.`,
+  ];
+
+  if (tone === "sweet" && sweetTypes.includes(type)) {
+    return randomLine(`tone-sweet-${type}`, sweetLines);
+  }
+
+  if (tone === "sharp" && sharpTypes.includes(type)) {
+    return randomLine(`tone-sharp-${type}`, sharpLines);
+  }
+
+  return baseLine;
 }
 
 function selectedCurrency() {
@@ -1467,6 +1508,7 @@ function renderCatCare(state = loadCareState()) {
   careTrustBar.style.width = `${state.trust}%`;
   careCozyBar.style.width = `${state.cozy}%`;
   careStressBar.style.width = `${state.stress}%`;
+  renderCatRoom(state);
 }
 
 function updateCatCare(delta, note) {
@@ -1479,6 +1521,81 @@ function updateCatCare(delta, note) {
     treats: current.treats + (delta.treats || 0),
     lastNote: note || current.lastNote,
   });
+}
+
+function catRoomCopy(state = loadCareState()) {
+  const tone = careTone(state);
+  if (tone === "sharp") {
+    return {
+      title: "The cat is under the cabinet",
+      badge: "low trust",
+      line: "You can try petting, but the cat may require several responsible decisions and one apology to the spreadsheet.",
+    };
+  }
+
+  if (tone === "sweet") {
+    return {
+      title: "The cat is ready for attention",
+      badge: "soft paws",
+      line: "Hold the pet spot. The cat will come over because the trust ledger is pleasantly boring.",
+    };
+  }
+
+  return {
+    title: "Your cat is watching the cart",
+    badge: "steady paws",
+    line: "Hold the pet spot and the cat may come over if the trust ledger allows it.",
+  };
+}
+
+function renderCatRoom(state = loadCareState()) {
+  if (!roomCatTitle || !roomCatBadge || !roomCatLine) return;
+  const copy = catRoomCopy(state);
+  roomCatTitle.textContent = copy.title;
+  roomCatBadge.textContent = copy.badge;
+  if (!catRoomStage.classList.contains("is-petting")) {
+    roomCatLine.textContent = copy.line;
+  }
+  catRoomStage.classList.toggle("is-curious", careTone(state) !== "sharp");
+}
+
+function switchView(targetId) {
+  appViews.forEach((view) => {
+    view.classList.toggle("is-active", view.id === targetId);
+  });
+  appTabs.forEach((tab) => {
+    const isActive = tab.dataset.viewTarget === targetId;
+    tab.classList.toggle("is-active", isActive);
+    tab.setAttribute("aria-pressed", String(isActive));
+  });
+  if (targetId === "cat-room-view") renderCatRoom();
+}
+
+let lastPetRewardAt = 0;
+let lastPetPointerAt = 0;
+
+function startPetting() {
+  const state = loadCareState();
+  catRoomStage.classList.add("is-petting", "is-curious");
+  roomCatLine.textContent =
+    careTone(state) === "sharp"
+      ? "The cat accepts the gesture, stiffly. Better financial behavior will help more."
+      : "The cat leans in and does a tiny satisfied cheek rub.";
+  playPurr({ immediate: true, mood: careTone(state) === "sharp" ? "soft" : "happy" });
+}
+
+function stopPetting() {
+  catRoomStage.classList.remove("is-petting");
+  const now = Date.now();
+  if (now - lastPetRewardAt > 12000) {
+    lastPetRewardAt = now;
+    updateCatCare(
+      { trust: 1, cozy: 2, stress: -1 },
+      "Petting logged. The cat is slightly softer, but still remembers receipts.",
+    );
+    return;
+  }
+  renderCatRoom();
 }
 
 function careChangeForFeedback(feedback, entry) {
@@ -1960,6 +2077,34 @@ document.addEventListener("pointerdown", (event) => {
 
 window.addEventListener("resize", () => {
   document.querySelectorAll(".help-dot.is-open").forEach(alignHelpDot);
+});
+
+appTabs.forEach((tab) => {
+  tab.addEventListener("click", () => {
+    switchView(tab.dataset.viewTarget);
+  });
+});
+
+petZone.addEventListener("pointerdown", (event) => {
+  event.preventDefault();
+  lastPetPointerAt = Date.now();
+  petZone.setPointerCapture?.(event.pointerId);
+  startPetting();
+});
+
+petZone.addEventListener("pointerup", (event) => {
+  event.preventDefault();
+  stopPetting();
+});
+
+petZone.addEventListener("pointercancel", stopPetting);
+petZone.addEventListener("pointerleave", () => {
+  if (catRoomStage.classList.contains("is-petting")) stopPetting();
+});
+petZone.addEventListener("click", () => {
+  if (Date.now() - lastPetPointerAt < 350) return;
+  startPetting();
+  window.setTimeout(stopPetting, 280);
 });
 
 impulse.addEventListener("input", updateImpulseLabel);
