@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Purrmission</title>
-    <link rel="stylesheet" href="styles.css?v=24" />
+    <link rel="stylesheet" href="styles.css?v=25" />
   </head>
   <body>
     <main class="shell" aria-label="Purrmission purchase advisor">
@@ -54,6 +54,34 @@
             <strong id="cat-persona">Advisor Cat</strong>
           </div>
           <p id="persona-note">The cat is still learning your spending patterns.</p>
+        </section>
+
+        <section class="cat-care-card" aria-label="Cat care status">
+          <div class="cat-care-head">
+            <div>
+              <span class="profile-kicker">Cat care</span>
+              <strong id="care-mood">Watchful loaf</strong>
+            </div>
+            <span class="treat-jar" id="treat-jar">3 treats</span>
+          </div>
+          <p id="care-note">Smart pauses make the cat cozier. Chaotic checkouts make the cat suspicious.</p>
+          <div class="care-meters" aria-label="Cat care meters">
+            <div class="care-meter">
+              <span>Trust</span>
+              <strong id="care-trust-value">55</strong>
+              <i><b id="care-trust-bar"></b></i>
+            </div>
+            <div class="care-meter">
+              <span>Cozy</span>
+              <strong id="care-cozy-value">45</strong>
+              <i><b id="care-cozy-bar"></b></i>
+            </div>
+            <div class="care-meter stress-meter">
+              <span>Stress</span>
+              <strong id="care-stress-value">18</strong>
+              <i><b id="care-stress-bar"></b></i>
+            </div>
+          </div>
         </section>
 
         <form class="judge-form" id="judge-form">
@@ -381,6 +409,6 @@
       </div>
       <p>GOOD HUMAN</p>
     </div>
-    <script src="app.js?v=39"></script>
+    <script src="app.js?v=40"></script>
   </body>
 </html>

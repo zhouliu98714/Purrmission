@@ -29,6 +29,15 @@ const negotiation = document.querySelector("#negotiation");
 const detailFields = document.querySelector("#detail-fields");
 const catPersona = document.querySelector("#cat-persona");
 const personaNote = document.querySelector("#persona-note");
+const careMood = document.querySelector("#care-mood");
+const careNote = document.querySelector("#care-note");
+const treatJar = document.querySelector("#treat-jar");
+const careTrustValue = document.querySelector("#care-trust-value");
+const careCozyValue = document.querySelector("#care-cozy-value");
+const careStressValue = document.querySelector("#care-stress-value");
+const careTrustBar = document.querySelector("#care-trust-bar");
+const careCozyBar = document.querySelector("#care-cozy-bar");
+const careStressBar = document.querySelector("#care-stress-bar");
 const historyList = document.querySelector("#history-list");
 const clearHistory = document.querySelector("#clear-history");
 const feedbackButtons = document.querySelectorAll("[data-feedback]");
@@ -38,6 +47,7 @@ const currencySelect = document.querySelector("#currency");
 const currencyPrefixes = document.querySelectorAll("[data-currency-prefix]");
 
 const STORAGE_KEY = "purrmission-history";
+const CARE_KEY = "purrmission-cat-care";
 const SOUND_KEY = "purrmission-muted";
 const CURRENCY_KEY = "purrmission-currency";
 const REAL_PURR_SRC = "assets/cat-purr.mp3";
@@ -1401,6 +1411,118 @@ function totalExpectedUses(uses, usePeriod, keepValue, keepPeriod) {
   return Math.max(0, usesPerMonth(uses, usePeriod) * months);
 }
 
+function clampCare(value) {
+  return Math.max(0, Math.min(100, Math.round(value)));
+}
+
+function defaultCareState() {
+  return {
+    trust: 55,
+    cozy: 45,
+    stress: 18,
+    treats: 3,
+    lastNote: "Smart pauses make the cat cozier. Chaotic checkouts make the cat suspicious.",
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+function loadCareState() {
+  try {
+    return { ...defaultCareState(), ...(JSON.parse(localStorage.getItem(CARE_KEY)) || {}) };
+  } catch {
+    return defaultCareState();
+  }
+}
+
+function saveCareState(state) {
+  const normalized = {
+    ...state,
+    trust: clampCare(state.trust),
+    cozy: clampCare(state.cozy),
+    stress: clampCare(state.stress),
+    treats: Math.max(0, Math.round(state.treats || 0)),
+    updatedAt: new Date().toISOString(),
+  };
+  localStorage.setItem(CARE_KEY, JSON.stringify(normalized));
+  renderCatCare(normalized);
+  return normalized;
+}
+
+function catCareMood(state) {
+  if (state.stress >= 70) return "Overstimulated auditor";
+  if (state.trust <= 32) return "Suspicious cupboard cat";
+  if (state.trust >= 78 && state.cozy >= 68) return "Purring CFO";
+  if (state.cozy >= 72) return "Cozy treasurer";
+  if (state.treats >= 18) return "Treat-funded supervisor";
+  return "Watchful loaf";
+}
+
+function renderCatCare(state = loadCareState()) {
+  careMood.textContent = catCareMood(state);
+  careNote.textContent = state.lastNote;
+  treatJar.textContent = `${state.treats} treat${state.treats === 1 ? "" : "s"}`;
+  careTrustValue.textContent = state.trust;
+  careCozyValue.textContent = state.cozy;
+  careStressValue.textContent = state.stress;
+  careTrustBar.style.width = `${state.trust}%`;
+  careCozyBar.style.width = `${state.cozy}%`;
+  careStressBar.style.width = `${state.stress}%`;
+}
+
+function updateCatCare(delta, note) {
+  const current = loadCareState();
+  saveCareState({
+    ...current,
+    trust: current.trust + (delta.trust || 0),
+    cozy: current.cozy + (delta.cozy || 0),
+    stress: current.stress + (delta.stress || 0),
+    treats: current.treats + (delta.treats || 0),
+    lastNote: note || current.lastNote,
+  });
+}
+
+function careChangeForFeedback(feedback, entry) {
+  const cautionVerdicts = ["Purrhaps wait", "No purrmission", "Still no purrmission", "Needs serious inspection"];
+  const defiedCat = feedback === "bought" && cautionVerdicts.includes(entry.verdict);
+
+  if (defiedCat) {
+    return {
+      delta: { trust: -7, cozy: -3, stress: 10, treats: -1 },
+      note: "The cat saw the risky checkout and is quietly updating the trust ledger.",
+    };
+  }
+
+  if (feedback === "bought") {
+    return {
+      delta: { trust: 2, cozy: 1, stress: -1 },
+      note: "A reasonable purrchase preserves trust. The cat keeps the receipt nearby.",
+    };
+  }
+
+  if (feedback === "skipped") {
+    return {
+      delta: { trust: 5, cozy: 6, stress: -5, treats: 2 },
+      note: "You paused the cart. The cat has accepted two tiny treats in your honor.",
+    };
+  }
+
+  if (feedback === "regretted") {
+    return {
+      delta: { trust: -3, cozy: -2, stress: 7 },
+      note: "Regret logged. The cat is not mad, just more careful now.",
+    };
+  }
+
+  if (feedback === "used") {
+    return {
+      delta: { trust: 4, cozy: 2, stress: -3, treats: 1 },
+      note: "Actual use detected. The cat respects evidence more than vibes.",
+    };
+  }
+
+  return null;
+}
+
 function loadHistory() {
   try {
     return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
@@ -1548,6 +1670,10 @@ function updateCurrentFeedback(feedback) {
 
   if (!entry.feedback.includes(feedback)) {
     entry.feedback.push(feedback);
+    const careChange = careChangeForFeedback(feedback, entry);
+    if (careChange) {
+      updateCatCare(careChange.delta, careChange.note);
+    }
   }
 
   saveHistory(history);
@@ -1719,6 +1845,10 @@ function calculateNegotiation(event) {
     currentDecision.verdict = "Conditional purrmission";
     currentDecision.score = adjustedScore;
     mood.textContent = catMood("acceptedTerms");
+    updateCatCare(
+      { trust: 3, cozy: 2, stress: -3, treats: 1 },
+      "Counter-purrposal accepted. The cat likes negotiated restraint.",
+    );
     negotiation.hidden = true;
     rebelButton.hidden = true;
     listenButton.hidden = true;
@@ -1893,5 +2023,6 @@ updateCurrencyUI();
 primePurrAudio();
 calculateDecision({ remember: false, sound: false });
 setMuted(isMuted, { silent: true });
+renderCatCare();
 renderProfile();
 renderHistory();
