@@ -28,6 +28,12 @@ The product should feel like:
 
 > Before you buy it, ask the cat.
 
+The product and content strategy should run in parallel:
+
+- The product validates whether users will ask the cat before buying.
+- The newsletter/report validates whether Purrmission can become a recognizable consumer-behavior and cat-judgment content brand.
+- The newsletter can feed traffic into the product, and product data can later feed original reports.
+
 ## What Purrmission Is Not
 
 Purrmission should avoid becoming:
@@ -302,7 +308,21 @@ Paid reports could include:
 
 This works because the product is not just reporting spending. It is reporting a shopping personality.
 
-### 4. Affiliate Revenue
+### 4. Newsletter and Report Sponsorships
+
+The newsletter should start as a brand and audience-building channel, not as the first revenue source.
+
+Later monetization options:
+
+- sponsored issues
+- paid deep-dive reports
+- premium monthly Purrsonality reports
+- paid community challenges
+- content-to-product conversion into AI packs or premium plans
+
+Sponsorships should be limited to brands or tools that do not undermine the cat's credibility. The newsletter should not become a shopping deals feed.
+
+### 5. Affiliate Revenue
 
 Affiliate revenue is possible but should be introduced carefully.
 
@@ -321,7 +341,7 @@ Avoid:
 
 The cat must always feel like it is on the user's side.
 
-### 5. Advertising
+### 6. Advertising
 
 Ads are possible later, but they should not be an early strategy.
 
@@ -334,7 +354,7 @@ Risks:
 
 If ads are added later, they should be limited, clearly labeled, and aligned with the product's mission.
 
-### 6. User Profile / B2B Possibilities
+### 7. User Profile / B2B Possibilities
 
 User profile data could eventually create business opportunities, but this is privacy-sensitive and should not be rushed.
 
@@ -359,6 +379,7 @@ This should be a later-stage option, not the early business model.
 - improve Cat Room
 - refine local purchase intelligence
 - validate repeat usage
+- start a lightweight weekly newsletter/report
 
 ### Phase 2: Add Backend Storage
 
@@ -367,6 +388,7 @@ This should be a later-stage option, not the early business model.
 - cat care state sync
 - temptation threads
 - privacy notice
+- prepare aggregate data fields that can later support Purrmission reports
 
 ### Phase 3: Add AI Endpoint
 
@@ -374,6 +396,7 @@ This should be a later-stage option, not the early business model.
 - cache lookup and cache write
 - limited free quota
 - AI judgment satisfaction tracking
+- generate better report insights from category, brand, and risk patterns
 
 ### Phase 4: Add Monetization
 
@@ -382,6 +405,7 @@ This should be a later-stage option, not the early business model.
 - cat skins
 - room decorations
 - monthly roast report
+- paid reports or carefully selected sponsorship tests
 
 ### Phase 5: Explore Growth Channels
 

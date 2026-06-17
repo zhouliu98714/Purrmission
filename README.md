@@ -4,7 +4,10 @@ Purrmission is a playful purchase-decision advisor. Tell the cat what you want t
 
 ## Strategy
 
-See [docs/business-strategy.md](docs/business-strategy.md) for the product positioning, business logic, AI direction, data model, and monetization plan.
+See:
+
+- [docs/business-strategy.md](docs/business-strategy.md) for the product positioning, business logic, AI direction, data model, and monetization plan.
+- [docs/newsletter-report-plan.md](docs/newsletter-report-plan.md) for the weekly report/content-brand plan.
 
 ## Run locally
 
